@@ -67,7 +67,7 @@ In addition to Tier 1:
 2. Run the project's test suite
 3. If a dev server is available, navigate to relevant pages and verify behavior
 4. Record command outputs and observations
-5. If execution contradicts code review findings, execution result wins
+5. Asymmetric execution rule: if code review says PASS but execution FAILS, execution wins (the code is broken). But if code review finds a logic issue and execution PASSES, do NOT dismiss the code review concern — the tests may share the same flawed assumption as the implementation. Flag both the passing test and the code review finding.
 
 ## Grading Rubric
 

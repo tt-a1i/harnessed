@@ -44,6 +44,16 @@ Check the project for available verification infrastructure:
 
 Record which tier is active — include it in the evaluator prompt.
 
+### Step 2b: Pre-Flight Checks (Tier 2 only)
+
+Before dispatching the expensive evaluator subagent, run available tool checks at zero LLM cost:
+
+- If type checker available (e.g., `tsc --noEmit`, `mypy`): run it
+- If linter available (e.g., `eslint`, `ruff`): run it
+- If test suite available: run it
+
+If any pre-flight check fails, fix the issues first. Do NOT dispatch the evaluator until pre-flight checks pass. This prevents wasting an evaluator round on errors that tools catch for free.
+
 ### Step 3: Gather Context for Evaluator
 
 Collect the following — this is ALL the evaluator will see:
