@@ -19,6 +19,8 @@ These skills are invoked via the `Skill` tool using `harnessed:<skill-name>`.
 3. **Superpowers skills** (if present) — process discipline
 4. **Default system prompt** — lowest priority
 
+**User overrides:** The user can adjust Harnessed scope (e.g., "treat this as a micro task", "skip the contract, just do QA") — always respected. The user can also disable verification entirely (e.g., "don't run QA", "skip all checks") — Harnessed will comply but will note in its response that independent verification was skipped at the user's request. The HARD-GATEs prevent the *agent* from rationalizing its way out of verification, not from obeying explicit user intent.
+
 ## The Harnessed Directory
 
 All Harnessed artifacts are written to `.harnessed/` in the project root:

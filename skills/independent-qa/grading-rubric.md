@@ -62,7 +62,7 @@ When reporting additional findings (issues not tied to specific criteria):
 
 ### SHIP
 All of the following must be true:
-- Every criterion is PASS (no FAIL, no PARTIAL)
+- Every criterion graded PASS, FAIL, or PARTIAL is PASS (no FAIL, no PARTIAL). Criteria graded MANUAL_REVIEW_NEEDED are excluded from this count.
 - Zero critical additional findings
 - Zero major additional findings that affect core functionality
 - For Tier 2: test suite passes, manual verification confirms behavior

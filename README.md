@@ -4,7 +4,7 @@ Independent quality verification for AI coding agents. Code isn't done until an 
 
 ## What It Does
 
-Harnessed adds an independent quality verification loop to your AI coding workflow. Instead of letting the coding agent evaluate its own work (31% error rate), Harnessed dispatches a separate evaluator with no knowledge of the generator's reasoning.
+Harnessed adds an independent quality verification loop to your AI coding workflow. Instead of letting the coding agent evaluate its own work, Harnessed dispatches a separate evaluator with no knowledge of the generator's reasoning.
 
 ```
 Task → Contract → Code → Independent QA → Fix Loop → Verification Gate → Done
@@ -48,7 +48,7 @@ Harnessed detects Superpowers automatically. When both are installed:
 4. **Independent QA** dispatches an isolated evaluator subagent
    - Evaluator sees: diff + contract + project context
    - Evaluator does NOT see: generator's reasoning or self-assessment
-   - Evaluator grades each criterion: PASS / FAIL / PARTIAL
+   - Evaluator grades each criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
    - Overall grade: SHIP / ITERATE / BLOCKED
 5. If ITERATE: agent fixes issues, QA re-runs (max 3 rounds)
 6. If SHIP: **Verification Gate** collects file:line evidence for every criterion

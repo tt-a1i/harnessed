@@ -7,8 +7,8 @@ Create the plugin manifest and session-start hook.
 
 **Files:**
 - `.claude-plugin/plugin.json` — name, version, description, author, keywords
-- `.claude-plugin/hooks/hooks.json` — register session-start hook
-- `.claude-plugin/hooks/session-start` — shell script that reads `using-harnessed/SKILL.md`, JSON-escapes, outputs as `hookSpecificOutput.additionalContext`
+- `hooks/hooks.json` — register session-start hook
+- `hooks/session-start` — shell script that reads `using-harnessed/SKILL.md`, JSON-escapes, outputs as `hookSpecificOutput.additionalContext`
 
 **Acceptance:**
 - [ ] `plugin.json` is valid JSON with required fields
@@ -71,7 +71,7 @@ The QA orchestration flow.
 
 **Content must include:**
 - When to activate (after any code generation round)
-- Subagent dispatch instructions (use Task tool)
+- Subagent dispatch instructions (use Agent tool)
 - What to include in subagent prompt (diff, contract, project context)
 - What to EXCLUDE (generator's reasoning, self-assessment)
 - Two-tier detection logic (code review vs execution verification)

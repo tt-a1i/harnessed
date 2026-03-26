@@ -74,6 +74,8 @@ Write the contract to `.harnessed/contract.md` using this exact format:
 
 More than 15 criteria suggests the task should be decomposed into smaller tasks.
 
+**Minimum:** Every contract MUST have at least 1 criterion. If you cannot identify any verifiable criteria, the task is either micro (route accordingly) or requirements are unclear (ask the user before proceeding).
+
 ## Verification Commands
 
 For each criterion, try to provide a verification command:

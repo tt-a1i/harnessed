@@ -23,7 +23,7 @@ Dispatch an isolated evaluator subagent to verify your code. The evaluator opera
 Determine the acceptance criteria source:
 
 - **Standalone mode:** Read `.harnessed/contract.md`
-- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task)
+- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task). Extract discrete, verifiable criteria from the spec. If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Present extracted criteria in the same format as a Harnessed contract for the `{CONTRACT}` placeholder. If the spec contains no identifiable requirements, invoke `harnessed:contract-writing` to create a contract.
 
 If no contract/spec exists: STOP. Invoke `harnessed:contract-writing` first. Do NOT run QA without criteria.
 
@@ -65,6 +65,12 @@ Collect the following — this is ALL the evaluator will see:
 
 The evaluator must judge the CODE, not your INTENT.
 
+**If `git diff` produces no output:** STOP. Do not dispatch the evaluator. Inform the user that there are no code changes to evaluate. If changes were already committed, suggest using `git diff HEAD~1` to diff against the previous commit.
+
+**If the project is not a git repository:** Collect changes by listing all files created or modified during this session. Provide full file contents to the evaluator in place of the diff, with a note: "No git repository. Full file contents provided." The evaluator should review these against the contract criteria.
+
+**Context budget:** If the combined evaluator prompt exceeds ~80,000 tokens, reduce the diff by excluding lock files, auto-generated files, and test file changes (note exclusions to the evaluator). If still too large, include only hunks relevant to contract criteria rather than full file diffs.
+
 ### Step 4: Dispatch Evaluator Subagent
 
 Use the **Agent tool** to spawn the evaluator subagent with the description **"Independent QA evaluation"**.
@@ -89,6 +95,15 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
 - The evaluator writes its report to `.harnessed/qa-report.md`
 
 **Escalation protocol:** If the evaluator encounters a criterion it cannot assess (e.g., requires manual browser testing, visual design judgment, or UX feel that cannot be verified programmatically), it must mark that criterion as `MANUAL_REVIEW_NEEDED` rather than guessing. The evaluator should never fabricate a PASS or FAIL for something it cannot actually verify.
+
+### Step 4b: Verify Evaluator Output
+
+After the evaluator subagent returns, verify that `.harnessed/qa-report.md`:
+- Exists (file is present)
+- Contains the expected `# QA Report` header
+- Was written during this evaluation (not stale from a previous run)
+
+If the report is missing, empty, or malformed: retry the evaluation once with the same inputs. If the second attempt also fails, treat as BLOCKED with reason "QA evaluator failed to produce a valid report" and escalate to the user. Do NOT proceed without a valid QA report.
 
 ### Step 5: Process QA Results
 

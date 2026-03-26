@@ -17,24 +17,25 @@ A Claude Code plugin that gives coding agents an independent quality verificatio
 ```
 harnessed/
 ├── .claude-plugin/
-│   ├── plugin.json
-│   └── hooks/
-│       ├── hooks.json          # SessionStart hook
-│       └── session-start       # Injects meta-skill
+│   └── plugin.json
+├── hooks/
+│   ├── hooks.json
+│   └── session-start
 ├── skills/
 │   ├── using-harnessed/
-│   │   └── SKILL.md            # Meta-skill: routing + Superpowers detection
+│   │   ├── SKILL.md
+│   │   └── reference.md
 │   ├── contract-writing/
-│   │   └── SKILL.md            # Generate testable acceptance criteria
+│   │   └── SKILL.md
 │   ├── independent-qa/
-│   │   ├── SKILL.md            # QA orchestration flow
-│   │   ├── evaluator-prompt.md # Evaluator subagent prompt template
-│   │   └── grading-rubric.md   # Scoring dimensions + thresholds
+│   │   ├── SKILL.md
+│   │   ├── evaluator-prompt.md
+│   │   └── grading-rubric.md
 │   └── verification-gate/
-│       └── SKILL.md            # Pre-completion forced verification
+│       └── SKILL.md
 ├── docs/
-│   ├── spec.md                 # This file
-│   └── research/               # Research reports
+├── .gitignore
+├── LICENSE
 └── README.md
 ```
 
@@ -87,7 +88,7 @@ The meta-skill checks for Superpowers presence:
 - Standalone mode: at the start of any coding task
 - With Superpowers: skipped (Superpowers brainstorming/writing-plans handles this)
 
-**Output:** A `contract.md` file in the working directory containing:
+**Output:** `.harnessed/contract.md` containing:
 
 ```markdown
 ## Task
@@ -109,7 +110,7 @@ The meta-skill checks for Superpowers presence:
 - Each criterion must be independently verifiable
 - No subjective criteria ("code should be clean") — only observable outcomes
 - Include verification commands where possible
-- Keep contracts short: 5-15 criteria max
+- Keep contracts short: 3-15 criteria max
 - Contract is written to a file (not just context) so the QA subagent can read it independently
 
 **Iron Law:**
@@ -124,7 +125,7 @@ NO CODE WITHOUT A CONTRACT FIRST
 **This is the core differentiator of Harnessed.**
 
 **Architecture:**
-- QA runs as a separate subagent via Task tool
+- QA runs as a separate subagent via Agent tool
 - Fresh context — no access to generator's reasoning or assumptions
 - Receives: git diff + contract.md + project context (stack, structure)
 - Does NOT receive: generator's planning notes, self-assessment, or conversation history
@@ -143,7 +144,7 @@ Activated when ANY of these are detected:
 - `pytest.ini`, `pyproject.toml` with test config
 - `Makefile` with test target
 - Running dev server (port open)
-- Playwright/Puppeteer config present
+- Playwright/Cypress config present
 
 Tier 2 adds:
 - Run test suite, report results
@@ -159,7 +160,7 @@ Tier 2 adds:
 - Structured output format (not prose)
 
 **Grading:**
-- Per-criterion: PASS / FAIL / PARTIAL (with explanation)
+- Per-criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED (with explanation)
 - Overall: SHIP / ITERATE / BLOCKED
   - SHIP: all criteria pass, no critical issues
   - ITERATE: some criteria fail, fixable issues identified
@@ -167,7 +168,7 @@ Tier 2 adds:
 
 **Iteration Loop:**
 - If ITERATE: QA report fed back to generator, generator fixes, QA re-runs
-- Max 3 iterations (configurable)
+- Max 3 iterations
 - If still ITERATE after max: escalate to user with full report
 - If BLOCKED at any point: escalate immediately
 
