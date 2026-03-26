@@ -23,6 +23,15 @@ The criterion is not satisfied. Evidence:
 - Implementation exists but introduces a regression
 - For Tier 2: execution demonstrates the feature does not work
 
+### MANUAL_REVIEW_NEEDED
+The criterion cannot be assessed by automated means. Use when:
+- Verification requires visual inspection (design fidelity, layout aesthetics)
+- Verification requires browser-specific behavior the evaluator cannot test
+- Verification requires user interaction patterns beyond what can be scripted
+- The criterion is inherently subjective (UX feel, perceived performance)
+
+MANUAL_REVIEW_NEEDED is excluded from the pass/fail count. It does NOT block SHIP — but the overall grade summary must list all MANUAL_REVIEW_NEEDED criteria so the user knows what still needs human verification.
+
 ---
 
 ## Severity Classification

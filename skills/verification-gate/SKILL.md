@@ -1,6 +1,7 @@
 ---
 name: verification-gate
-description: Use before declaring any coding task complete, done, or finished. Forces structured evidence collection for every acceptance criterion. Prevents phantom completion by requiring file:line citations and command outputs as proof.
+description: Use before declaring any coding task complete, done, or finished.
+user-invocable: true
 ---
 
 # Verification Gate
@@ -114,11 +115,11 @@ No `.harnessed/verification-summary.md` needed for micro tasks.
 
 | Your Thought | Why It's Wrong | What To Do |
 |-------------|---------------|------------|
-| "It's obviously done, I just wrote it" | Obvious to you. Not obvious to the user. Not proven. Superpowers Issue #578 proved that agents claim completion without verification. | Collect evidence. If it's truly done, evidence is trivial to produce. |
+| "It's obviously done, I just wrote it" | Obvious to you. Not obvious to the user. Not proven. Agents routinely claim completion without verification. | Collect evidence. If it's truly done, evidence is trivial to produce. |
 | "The QA already passed, this gate is redundant" | QA checks correctness. The gate checks completeness and provides an audit trail. They serve different purposes. | Complete the gate. It takes 60 seconds. |
-| "I verified it mentally" | Mental verification is the definition of phantom completion. Research shows 31% error rate. | Produce file:line citations. Mental state is not evidence. |
 | "The user is waiting, let me just say done" | The user is waiting for WORKING code, not a false completion signal. One minute of verification saves hours of debugging. | Complete the gate, then respond. |
 | "I'll just list the files I changed" | Listing files proves you changed them. It does NOT prove the changes are correct or complete. | Cite specific lines, not just files. |
+| "The evidence is implicit in the code" | Implicit evidence is not evidence. If you cannot point to a specific file:line, you have not verified it — you have assumed it. | Produce explicit citations. Every criterion needs a concrete reference. |
 
 ## What Verification Gate Catches That QA Doesn't
 

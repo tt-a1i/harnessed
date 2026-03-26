@@ -1,0 +1,10 @@
+# Harnessed artifacts (generated per-project, not committed)
+.harnessed/
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+*~

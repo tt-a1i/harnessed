@@ -1,13 +1,14 @@
 ---
 name: independent-qa
-description: Use after completing a round of code generation. Dispatches an isolated evaluator subagent to independently verify code against acceptance criteria. The evaluator has no access to the generator's reasoning.
+description: Use after completing a round of code generation.
+user-invocable: true
 ---
 
 # Independent QA
 
 Dispatch an isolated evaluator subagent to verify your code. The evaluator operates in a clean context with NO access to your reasoning, assumptions, or self-assessment. It grades your work against the contract.
 
-**This is the core of Harnessed.** Self-evaluation has a 31% disagreement rate with independent evaluation. You cannot objectively judge your own work.
+**This is the core of Harnessed.** Self-evaluation is unreliable. You cannot objectively judge your own work.
 
 ## When This Skill Activates
 
@@ -66,19 +67,28 @@ The evaluator must judge the CODE, not your INTENT.
 
 ### Step 4: Dispatch Evaluator Subagent
 
-Use the **Agent tool** (subagent) to dispatch the evaluator. Construct the prompt by reading `skills/independent-qa/evaluator-prompt.md` and filling in:
+Use the **Agent tool** to spawn the evaluator subagent with the description **"Independent QA evaluation"**.
 
-- `{CONTRACT}` — the full contract/spec content
-- `{DIFF}` — the git diff
-- `{STACK}` — project stack description
-- `{TIER}` — 1 or 2
-- `{VERIFICATION_COMMANDS}` — commands from contract
-- `{GRADING_RUBRIC}` — content from `skills/independent-qa/grading-rubric.md`
+**Construct the prompt:**
+
+1. Read `skills/independent-qa/evaluator-prompt.md` to get the prompt template
+2. Read `skills/independent-qa/grading-rubric.md` to get the grading rubric content
+3. Replace all placeholders with collected context:
+   - `{CONTRACT}` — the full contract/spec content
+   - `{DIFF}` — the git diff
+   - `{STACK}` — project stack description
+   - `{TIER}` — 1 or 2
+   - `{VERIFICATION_COMMANDS}` — commands from contract
+   - `{GRADING_RUBRIC}` — content from `grading-rubric.md`
+4. Paste the FULL content of each placeholder. Never summarize, truncate, or paraphrase. The evaluator sees ONLY what you provide — omitted content is invisible content.
 
 **Subagent configuration:**
-- Use the Agent tool to spawn the evaluator
-- The evaluator must be able to read files and run commands (for Tier 2)
+- Tool: Agent tool
+- Description: "Independent QA evaluation"
+- Permissions: the subagent needs read and execute permissions (required for Tier 2 execution verification)
 - The evaluator writes its report to `.harnessed/qa-report.md`
+
+**Escalation protocol:** If the evaluator encounters a criterion it cannot assess (e.g., requires manual browser testing, visual design judgment, or UX feel that cannot be verified programmatically), it must mark that criterion as `MANUAL_REVIEW_NEEDED` rather than guessing. The evaluator should never fabricate a PASS or FAIL for something it cannot actually verify.
 
 ### Step 5: Process QA Results
 
@@ -129,12 +139,11 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
 
 | Your Thought | Why It's Wrong | What To Do |
 |-------------|---------------|------------|
-| "I already know the code works" | You wrote it. Your knowledge is not evidence. Self-eval disagrees with independent eval 31% of the time. | Dispatch the evaluator. If it works, QA confirms quickly. |
-| "QA just slows down the iteration" | Shipping broken code slows down the user infinitely more. 42% of AI code fails initial testing. | QA is not overhead. QA is the product. |
-| "The diff is tiny, QA is overkill" | Tiny diffs cause outages. A 1-line off-by-one error can corrupt data. | If it touches logic, it gets QA. |
 | "I can include helpful context for the evaluator" | "Helpful context" biases the evaluator toward your assumptions. Independence requires ignorance of your intent. | Include ONLY what's specified in Step 3. Nothing else. |
 | "The evaluator is wrong about this finding" | Maybe. But your default assumption should be that the evaluator is right and you are biased. | Fix the issue. If you truly believe the evaluator is wrong, present both views to the user. |
 | "Let me just re-run QA, maybe it'll pass this time" | Re-running without fixes is hoping for randomness. The evaluator will find the same issues. | Fix the issues first, then re-run. |
+| "I already ran QA on similar code before" | Previous QA verified previous code. Every diff is evaluated independently against the current contract. | Dispatch a fresh evaluator. Prior QA results do not transfer. |
+| "I know the code works, I just need QA to confirm" | If you expect confirmation, you are not seeking independent evaluation — you are seeking validation. That mindset causes you to dismiss legitimate findings. | Dispatch the evaluator expecting to learn something. |
 
 <HARD-GATE>
 INDEPENDENT QA IS MANDATORY FOR ALL STANDARD AND LARGE TASKS.

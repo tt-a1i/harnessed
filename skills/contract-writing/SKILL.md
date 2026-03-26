@@ -1,6 +1,7 @@
 ---
 name: contract-writing
-description: Use before starting any coding task when Superpowers is not present. Generates testable acceptance criteria and verification commands as a contract that the independent QA evaluator will grade against.
+description: Use before starting any coding task when Superpowers is not present.
+user-invocable: true
 ---
 
 # Contract Writing

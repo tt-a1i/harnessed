@@ -2,7 +2,11 @@
   "name": "harnessed",
   "version": "0.1.0",
   "description": "Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator confirms it works.",
-  "author": "Harnessed",
+  "author": {
+    "name": "Harnessed"
+  },
+  "repository": "https://github.com/tt-a1i/harnessed",
+  "homepage": "https://github.com/tt-a1i/harnessed",
   "keywords": [
     "harness",
     "qa",
