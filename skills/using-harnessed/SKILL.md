@@ -13,12 +13,22 @@ Harnessed ensures that code you write is independently verified before being dec
 
 ## Detect Operating Mode
 
-**Check:** Does the skill `superpowers:using-superpowers` exist in the current session?
+**Detect Superpowers:** Check if the session context contains references to Superpowers skills (e.g., `superpowers:` prefix in loaded skills), or if a `superpowers` plugin directory exists in the project. If Superpowers was loaded by a SessionStart hook, its instructions will already be in your context — look for mentions of "Superpowers" in your system instructions.
 
 - **Superpowers detected → Complementary Mode** — SKIP `harnessed:contract-writing`; use Superpowers specs as acceptance criteria.
 - **Superpowers not detected → Standalone Mode** — USE `harnessed:contract-writing` before any coding task.
 
 Both modes USE `harnessed:independent-qa` after each coding round and `harnessed:verification-gate` before completion.
+
+## User Communication
+
+Briefly inform the user at these moments:
+- **Before contract:** "I'll draft acceptance criteria before coding."
+- **Before QA:** "Running independent QA evaluation."
+- **During ITERATE:** "QA found {N} issues — fixing them now."
+- **At completion:** Use the verification-gate's presentation format.
+
+Keep status messages to one sentence. Do not explain the Harnessed pipeline unless the user asks.
 
 ## Task Size Routing
 
@@ -39,6 +49,8 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 3. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
 
 Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist.
+
+**New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user: "Is this a new task or a continuation of the current one?"
 
 ## Anti-Rationalization
 
@@ -68,41 +80,3 @@ Micro Task:
   Task → CODE → verification-gate → Done
 ```
 
-### Decision Flowchart
-
-```dot
-digraph harnessed_flow {
-  rankdir=TB;
-  node [shape=box];
-
-  start [label="New coding task"];
-  check_size [label="Task size?" shape=diamond];
-  micro [label="Micro: code → verify"];
-  check_sp [label="Superpowers\npresent?" shape=diamond];
-  contract [label="contract-writing"];
-  sp_plan [label="Superpowers planning"];
-  code [label="Write code"];
-  qa [label="independent-qa\n(isolated subagent)"];
-  check_result [label="QA result?" shape=diamond];
-  fix [label="Fix issues"];
-  gate [label="verification-gate"];
-  done [label="Done ✓" shape=ellipse];
-  escalate [label="Escalate to user" shape=ellipse];
-
-  start -> check_size;
-  check_size -> micro [label="micro"];
-  check_size -> check_sp [label="standard/large"];
-  micro -> gate;
-  check_sp -> contract [label="no"];
-  check_sp -> sp_plan [label="yes"];
-  contract -> code;
-  sp_plan -> code;
-  code -> qa;
-  qa -> check_result;
-  check_result -> gate [label="SHIP"];
-  check_result -> fix [label="ITERATE\n(max 3x)"];
-  check_result -> escalate [label="BLOCKED"];
-  fix -> qa;
-  gate -> done;
-}
-```

@@ -36,7 +36,7 @@ Check the project for available verification infrastructure:
 - `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` → can run `pytest`
 - `Makefile` with `test` target → can run `make test`
 - `go.mod` present → can run `go test ./...`
-- Dev server running (check common ports: 3000, 5173, 8000, 8080)
+- Dev server running (check common ports: 3000, 5173, 8000, 8080). Use `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` to detect running servers.
 - `playwright.config.*` or `cypress.config.*` → can run e2e tests
 
 **If ANY Tier 2 indicator is found:** use Tier 2 (code review + execution)
@@ -91,7 +91,7 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
 **Subagent configuration:**
 - Tool: Agent tool
 - Description: "Independent QA evaluation"
-- Permissions: the subagent needs read and execute permissions (required for Tier 2 execution verification)
+- Permissions: the subagent needs read, write, and execute permissions (required for Tier 2 execution verification and writing qa-report.md)
 - The evaluator writes its report to `.harnessed/qa-report.md`
 
 **Escalation protocol:** If the evaluator encounters a criterion it cannot assess (e.g., requires manual browser testing, visual design judgment, or UX feel that cannot be verified programmatically), it must mark that criterion as `MANUAL_REVIEW_NEEDED` rather than guessing. The evaluator should never fabricate a PASS or FAIL for something it cannot actually verify.
@@ -149,6 +149,7 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
 - Each round gets the LATEST diff (including fixes from previous rounds)
 - The evaluator does NOT know about previous rounds — it judges the current state independently
 - Never lower the bar between iterations. If criteria were fair in round 1, they are fair in round 3.
+- Track the iteration count by appending a `## Iteration: {N}` header to `.harnessed/qa-report.md` before each QA dispatch. This persists the count across context compaction.
 
 ## Anti-Rationalization
 

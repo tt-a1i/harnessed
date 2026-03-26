@@ -2,6 +2,10 @@
 
 Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator confirms it works.
 
+## Why
+
+AI coding agents evaluate their own work — and get it wrong. Research shows self-evaluation disagrees with independent evaluation 31% of the time, and AI-generated code initially passes only 42% of comprehensive tests. The fix is simple: don't let the same agent that wrote the code judge the code.
+
 ## What It Does
 
 Harnessed adds an independent quality verification loop to your AI coding workflow. Instead of letting the coding agent evaluate its own work, Harnessed dispatches a separate evaluator with no knowledge of the generator's reasoning.
@@ -18,17 +22,23 @@ Task → Contract → Code → Independent QA → Fix Loop → Verification Gate
 
 ### Claude Code
 
-Clone or copy this repository into your project or a shared plugins directory:
-
 ```bash
-# As a project plugin
-cp -r harnessed/ your-project/.claude-plugin-harnessed/
+# Clone the repository
+git clone https://github.com/tt-a1i/harnessed.git
 
-# Or as a global plugin
+# Install as a project plugin
+cp -r harnessed/ your-project/
+
+# Or install globally
 cp -r harnessed/ ~/.claude/plugins/harnessed/
+
+# Ensure the hook is executable
+chmod +x harnessed/hooks/session-start
 ```
 
-The SessionStart hook automatically activates on every new session.
+To verify: start a new Claude Code session and give a coding task. You should see Harnessed generate a contract in `.harnessed/contract.md` before coding begins.
+
+**Important:** Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there.
 
 ### With Superpowers
 
@@ -37,6 +47,8 @@ Harnessed detects Superpowers automatically. When both are installed:
 - Superpowers handles planning, TDD, and process discipline
 - Harnessed handles independent QA and verification
 - No duplication, no conflict
+
+When both are installed, Harnessed QA runs after Superpowers' process completes.
 
 ## How It Works
 
@@ -63,6 +75,34 @@ Same as above, but contract-writing is skipped (Superpowers' specs are used inst
 - **Tier 1 (Code Review)** — Always available. Evaluator reads the diff and checks criteria.
 - **Tier 2 (Execution Verification)** — Auto-detected when test frameworks or dev servers are present. Evaluator runs tests and interacts with the application.
 
+## Example QA Report
+
+After running independent QA, Harnessed produces a structured report at `.harnessed/qa-report.md`:
+
+```markdown
+# QA Report
+
+## Overview
+- **Verification Tier:** 2
+- **Overall Grade:** ITERATE
+- **Criteria Passed:** 7/9
+- **Critical Issues:** 0
+
+## Per-Criterion Evaluation
+
+### Criterion: "Selected theme persists across page reloads"
+- **Grade:** FAIL
+- **Evidence:** src/hooks/useTheme.ts:24 — localStorage.setItem is called but getItem on line 8 reads from wrong key ("theme" vs "color-theme")
+- **Finding:** Theme preference is written to localStorage under key "color-theme" but read back under key "theme", so it never persists.
+- **Action Required:** Align the localStorage key in useTheme.ts lines 8 and 24.
+
+### Criterion: "Dark mode applies to all UI elements"
+- **Grade:** PARTIAL
+- **Evidence:** src/components/Header.tsx:15 — className does not include theme variable
+- **Finding:** Header component does not consume the theme context. Background stays white in dark mode.
+- **Action Required:** Import and apply theme class in Header.tsx.
+```
+
 ## Skills
 
 | Skill | Invocation | Purpose |
@@ -82,6 +122,10 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 ├── qa-report.md             # QA evaluation report
 └── verification-summary.md  # Completion evidence
 ```
+
+## Cost
+
+Each QA round spawns one evaluator subagent. A typical task uses 1-2 QA rounds. Expect roughly 1.5x the token usage of coding without Harnessed. The tradeoff: catching bugs before the user reports them vs. catching them after.
 
 ## Design Principles
 

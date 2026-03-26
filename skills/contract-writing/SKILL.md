@@ -96,7 +96,7 @@ If the project has no test infrastructure, the contract should note this under a
 4. **Add verification commands** — map each criterion to how it can be checked.
 5. **Define out-of-scope** — explicitly exclude things the user did NOT ask for.
 6. **Write to `.harnessed/contract.md`**
-7. **Present the contract to the user** — brief summary, ask for confirmation before proceeding to code.
+7. **Present the contract to the user** — show a brief summary of the criteria. For **Large** tasks, wait for explicit user approval before coding. For **Standard** tasks, present the contract and proceed to coding unless the user objects.
 
 ## Anti-Rationalization
 
