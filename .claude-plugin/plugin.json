@@ -1,0 +1,15 @@
+{
+  "name": "harnessed",
+  "version": "0.1.0",
+  "description": "Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator confirms it works.",
+  "author": "Harnessed",
+  "keywords": [
+    "harness",
+    "qa",
+    "evaluation",
+    "verification",
+    "quality",
+    "multi-agent",
+    "code-review"
+  ]
+}
