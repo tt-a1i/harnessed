@@ -65,7 +65,7 @@ When both are installed, Harnessed QA runs after Superpowers' process completes.
    - Evaluator sees: diff + contract + project context
    - Evaluator does NOT see: generator's reasoning or self-assessment
    - Evaluator grades each criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - Overall grade: SHIP / ITERATE / BLOCKED
+   - Overall grade: **SHIP** (all pass — ready to complete) / **ITERATE** (issues found — agent fixes and re-runs QA) / **BLOCKED** (fundamental problems — requires your input)
 5. If ITERATE: agent fixes issues, QA re-runs (max 3 rounds)
 6. If SHIP: **Verification Gate** collects file:line evidence for every criterion
 7. Task complete with full audit trail
@@ -128,6 +128,7 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 ```
 .harnessed/
 ├── contract.md              # Acceptance criteria (written in both modes)
+├── failure-patterns.md      # Recurring failure categories (persistent across tasks)
 ├── qa-report.md             # QA evaluation report
 ├── qa-state.md              # Iteration count and dispatch timestamp
 ├── verification-summary.md  # Completion evidence

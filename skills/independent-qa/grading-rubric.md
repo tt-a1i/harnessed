@@ -111,3 +111,5 @@ BLOCKED means: the implementer should not attempt fixes without user guidance. T
 4. **File:line or it didn't happen.** Every PASS needs evidence. Every FAIL needs evidence. "I looked and it seems fine" is not a grade — it's a guess.
 
 5. **One FAIL does not contaminate other criteria.** Grade each criterion independently. A failure in authentication does not make the UI criterion fail unless they are causally linked.
+
+6. **Severity precedence for overall grade.** When conditions for multiple overall grades are met simultaneously, the most severe wins: BLOCKED > ITERATE > SHIP. For example, if criteria results suggest ITERATE but a critical additional finding exists, the overall grade is BLOCKED.

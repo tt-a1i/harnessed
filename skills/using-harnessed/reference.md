@@ -8,10 +8,9 @@ Harnessed adds three capabilities to your workflow:
 
 1. **Contract Writing** — Before coding, generate testable acceptance criteria. Includes a coverage verification step (step 6b) that maps every requirement to a criterion to ensure nothing is missed. Draws on `.harnessed/failure-patterns.md` to anticipate historically common failure modes.
 2. **Independent QA** — After coding, a separate evaluator subagent verifies your work. Supports multiple verification tiers:
-   - **Tier 1** — Static analysis and linting
-   - **Tier 1.5** — HTTP smoke tests (used when a dev server is running but no test suite exists)
-   - **Tier 2** — Automated test suite execution
-   - **Tier 3** — Manual / exploratory QA
+   - **Tier 1** — Code review only (evaluator reads the diff and checks criteria)
+   - **Tier 1.5** — Code review + HTTP smoke tests (when dev server is running but no test suite exists)
+   - **Tier 2** — Code review + full test suite execution
 3. **Verification Gate** — Before declaring "done", provide structured evidence for every criterion. Step 0 checks that code hasn't changed since QA ran, preventing stale verifications.
 
 These skills are invoked via the `Skill` tool using `harnessed:<skill-name>`.

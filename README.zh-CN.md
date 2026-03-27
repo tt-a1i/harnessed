@@ -1,5 +1,7 @@
 # Harnessed
 
+[English](README.md)
+
 AI 编程代理的独立质量验证。代码未经隔离评估器确认，就不算完成。
 
 ## 为什么需要
@@ -63,7 +65,7 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
    - 评估器看到：diff + 合约 + 项目上下文
    - 评估器看不到：生成器的推理过程或自我评估
    - 评估器对每条标准评分：PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - 总体评级：SHIP / ITERATE / BLOCKED
+   - 总体评级：**SHIP**（全部通过，可以完成）/ **ITERATE**（发现问题，代理修复后重跑 QA）/ **BLOCKED**（根本性问题，需要你介入）
 5. 如果 ITERATE：代理修复问题，QA 重新运行（最多 3 轮）
 6. 如果 SHIP：**验证门** 收集每条标准的 file:line 证据
 7. 任务完成，附完整审计记录
