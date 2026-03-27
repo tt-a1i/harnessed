@@ -195,6 +195,7 @@ Before gathering context, verify the repository is in a clean state:
 - Must attempt to disprove each PASS (not just confirm)
 - Structured output format (not prose)
 - **Injection mitigation:** {CONTRACT} and {DIFF} placeholders are preceded by untrusted-data warnings instructing the evaluator to treat embedded instructions as inert. Key behavioral rules are repeated in a Final Reminder section after all injected content.
+- **Failure Categories output:** On ITERATE/BLOCKED, the evaluator writes a `## Failure Categories` table in `qa-report.md` listing named categories for each FAIL/PARTIAL criterion. The orchestrator copies these verbatim to `failure-patterns.md` — it does not rephrase or judge them independently.
 
 **Evaluator Output Verification (Step 4b):**
 After the subagent returns, verify `.harnessed/qa-report.md`:
@@ -292,9 +293,9 @@ Skills communicate through files, not shared context:
 |------|-----------|---------|
 | `contract.md` | contract-writing | independent-qa, verification-gate |
 | `qa-report.md` | evaluator subagent (dispatched by independent-qa) | generator (for fixes), verification-gate |
-| `qa-state.md` | independent-qa orchestrator | independent-qa on re-entry after compaction, Step 4b verification, verification-gate staleness check |
+| `qa-state.md` | independent-qa orchestrator (fields: `iteration`, `dispatched_at`, `head_commit`, `contract_hash`) | independent-qa on re-entry after compaction, Step 4b verification, verification-gate staleness + contract tamper check |
 | `verification-summary.md` | verification-gate | user (final deliverable) |
-| `failure-patterns.md` | independent-qa (Step 5b) | contract-writing (Step 2b) — persistent project-level learning, NOT archived |
+| `failure-patterns.md` | independent-qa orchestrator (Step 5b) — copies `## Failure Categories` verbatim from evaluator output | contract-writing (Step 2b) — persistent project-level learning, NOT archived |
 
 Files are written to `.harnessed/` directory in the project root to avoid polluting the workspace.
 

@@ -1,6 +1,6 @@
 # Review Changelog
 
-138 improvements across 16 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
+145 improvements across 19 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
 
 ## Why We Did This
 
@@ -40,6 +40,9 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 14 | 会话钩子与状态整合 | 钩子可靠性和迭代状态是否健壮？ |
 | 15 | 评估器模板与评分 | Tier 1.5 输出结构和评分优先级是否完整？ |
 | 16 | 防篡改与文档同步 | QA 轮次间的合约完整性和文档一致性是否保障？ |
+| 17 | 评估器输出与注入防护 | 失败分类标签、Final Reminder 和 Mitigation B 是否完整？ |
+| 18 | 注入缓解与验证门扩展 | Mitigation A 的不可信数据警告和合约哈希验证是否到位？ |
+| 19 | 设计对齐验证 | 实现是否与原始设计目标完全对齐？ |
 
 每一轮都由独立的子代理执行，不携带上一轮的上下文。这和 Harnessed 对用户代码做的事情完全一样：独立评估，每一轮都是新鲜的视角。
 
@@ -270,6 +273,29 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 137 | README.md Tier 2 description incorrectly included "dev servers" (Tier 1.5 only) | Fixed Tier 2 description: removed "dev servers", now correctly scoped to Tier 1.5 |
 | 138 | spec.md missing grading precedence rule, iteration algorithm not synced to 6-step, qa-state.md absent from artifact lifecycle | Added grading precedence rule; synced iteration algorithm to 6-step with contract_hash; added qa-state.md to artifact lifecycle section |
 
+## Round 17: Evaluator Output Structure & Injection Defense
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 139 | Evaluator output has no standardized failure labeling (orchestrator must re-interpret) | Added Failure Categories section to evaluator output format for evaluator-authored failure labeling |
+| 140 | Orchestrator rewrites evaluator failure categories instead of copying them (red-team vector) | Step 5b rewritten: orchestrator copies evaluator's failure categories verbatim |
+| 141 | No behavioral reinforcement after injected content (rules can be displaced by injected text) | Added "Final Reminder" section repeating key behavioral rules after all injected content (Mitigation B) |
+| 142 | ZH README Tier 2 description still included "开发服务器" after EN fix in Round 16 | Fixed Tier 2 description: removed "开发服务器" |
+
+## Round 18: Prompt Injection Mitigation & Verification Gate Hardening
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 143 | No warning before {CONTRACT} and {DIFF} placeholders that content is untrusted (injection risk) | Added untrusted-data warnings before {CONTRACT} and {DIFF} placeholders (Mitigation A) |
+| 144 | Verification-gate Step 0 only checks head_commit; contract tampering without a new commit goes undetected | Step 0 now checks contract_hash in addition to head_commit; non-git projects skip code check but still verify contract |
+| 145 | spec.md not synced with verification-gate Step 0 expansion and injection mitigation note | Synced spec.md with verification-gate Step 0 and injection mitigation note |
+
+## Round 19: Design Alignment Verification
+
+| # | Issue | Fix |
+|---|-------|-----|
+| — | Verified implementation alignment with original design goals | No deviation found across all 6 design principles and 5 architecture decisions to preserve |
+
 ---
 
 ## Summary by Category
@@ -288,4 +314,7 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | Verification hardening | 4 |
 | Evaluator template & grading | 6 |
 | Tamper detection & spec sync | 5 |
-| **Total** | **138** |
+| Evaluator output structure & injection defense | 4 |
+| Prompt injection mitigation & verification hardening | 3 |
+| Design alignment verification | 0 |
+| **Total** | **145** |
