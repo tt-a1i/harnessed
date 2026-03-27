@@ -12,6 +12,7 @@ After contract-writing, dispatch a lightweight subagent that receives ONLY the u
 - Addresses: gaming the contract (Threat 2), context firewall gap (Pattern 4)
 - Trigger: Large tasks mandatory, Standard tasks optional
 - Cost: ~0.3x additional token per task
+- **Status: PARTIALLY IMPLEMENTED** — Step 6b in contract-writing does self-verification (requirement→criterion mapping), but uses the same agent, not an independent subagent. The independent subagent approach remains a v1.1 goal.
 
 ### Criteria Priority Tiers (P0/P1/P2)
 Add priority levels to contract criteria:
@@ -42,6 +43,8 @@ When processing an ITERATE result, read only FAIL/PARTIAL entries + overview. Sk
 ### Security Checklist
 When contract criteria touch auth, input handling, or API endpoints, append a security-focused checklist to the evaluator prompt (OWASP top patterns, common XSS/injection vectors). Not a separate agent — an addendum to the existing evaluator.
 
+- **Status: PARTIALLY IMPLEMENTED** — Security checks (XSS, SQL injection, auth bypass, hardcoded secrets) are now always present in the evaluator Tier 1 code review. The conditional/context-aware triggering (only when criteria touch auth/input) remains a future enhancement.
+
 ### Skill Format Documentation
 Document in spec: frontmatter fields, directory layout, supporting files, user-invocable meaning, how to wire new skills into the meta-skill routing.
 
@@ -54,6 +57,8 @@ For Large tasks, dispatch N evaluator subagents each reviewing one criterion wit
 
 ### Cross-Session Memory
 Read archived QA reports to identify recurring failure patterns. "This component has failed QA 3 times on error handling edge cases." Makes QA smarter over time.
+
+- **Status: PARTIALLY IMPLEMENTED** — `.harnessed/failure-patterns.md` tracks recurring failures within a project and informs contract-writing. However, it does not read archived QA reports or aggregate across sessions — it records patterns as they occur.
 
 ### Archive Rotation
 Delete .harnessed/archive/ entries older than 30 days or limit to last 20 entries.

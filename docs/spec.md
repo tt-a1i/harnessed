@@ -47,11 +47,15 @@ harnessed/
 3. Supports both Claude Code (`CLAUDE_PLUGIN_ROOT`) and Cursor (`CURSOR_PLUGIN_ROOT`) environments
 4. All other skills loaded on-demand via Skill tool
 
-### Superpowers Detection
+### Superpowers Detection (Canonical Algorithm)
 
-The meta-skill checks for Superpowers presence:
-- If detected: Harnessed defers planning/TDD to Superpowers, focuses exclusively on independent verification
-- If not detected: Harnessed activates full mode including lightweight contract-writing for planning
+All skills that check for Superpowers MUST use this single procedure:
+
+1. Check if session context contains `superpowers:` prefix in loaded skills, or if a `superpowers` plugin directory exists in the project, or if "Superpowers" is mentioned in system instructions
+2. If detected: check if `docs/superpowers/specs/` exists and contains spec files
+   - **Specs found → Complementary Mode:** defer planning to Superpowers, use specs as acceptance criteria
+   - **No specs found → Standalone Mode (fallback):** Superpowers is installed but has no planning output yet — use `harnessed:contract-writing` as normal
+3. If not detected → **Standalone Mode:** full Harnessed pipeline including contract-writing
 
 ---
 
@@ -114,6 +118,12 @@ The meta-skill checks for Superpowers presence:
 - Keep contracts short: 3-15 criteria max
 - Contract is written to a file (not just context) so the QA subagent can read it independently
 
+**Failure Pattern Integration (Step 2b):**
+Before drafting, read `.harnessed/failure-patterns.md` if it exists. Only use patterns with Count ≥ 2 that are relevant to the current task's domain. This prevents recurring mistakes (e.g., "missing input validation" reappearing across tasks).
+
+**Coverage Verification (Step 6b):**
+After writing the contract, re-read the user's request and map every requirement to at least one criterion. If any requirement has no matching criterion, add it. This closes the gap where contracts drift from the original request.
+
 **HARD-GATE:**
 ```
 NO CODE WITHOUT A CONTRACT FIRST
@@ -132,22 +142,32 @@ NO CODE WITHOUT A CONTRACT FIRST
 - Does NOT receive: generator's planning notes, self-assessment, or conversation history
 - If the project is not a git repository: collect full file contents instead of diff, with a note to the evaluator
 
-**Two-tier evaluation:**
+**Three-tier evaluation:**
 
 **Tier 1 — Code Review (always available):**
 - Read the diff
 - Check each contract criterion against the code
-- Identify: missing implementations, logic errors, edge cases, regressions
+- Identify: missing implementations, logic errors, edge cases, regressions, security issues
 - Output: structured report with PASS/FAIL per criterion
 
+**Tier 1.5 — HTTP Smoke Tests (auto-detected):**
+Activated when a dev server is running but NO test suite exists:
+- All Tier 1 checks, plus:
+- `curl`/HTTP requests against the running dev server
+- Status code and response body validation
+- Error case testing (invalid inputs, missing params)
+- Asymmetric execution rule applies (curl FAIL overrides code review PASS)
+
 **Tier 2 — Execution Verification (auto-detected):**
-Activated when ANY of these are detected:
+Activated when ANY test suite indicator is detected:
 - `package.json` with `"test"` script → can run `npm test`
 - `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` convention → can run `pytest`
 - `Makefile` with `test` target → can run `make test`
 - `go.mod` present → can run `go test ./...`
-- Running dev server on common ports (3000, 5173, 8000, 8080). Detection: `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'`
 - Playwright/Cypress config present → can run e2e tests
+
+Dev server detection (used for both Tier 1.5 and Tier 2):
+- Running dev server on common ports (3000, 5173, 8000, 8080). Detection: `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` (or `ss` on Linux)
 
 Tier 2 adds:
 - Run test suite, report results
@@ -155,7 +175,7 @@ Tier 2 adds:
 - If API: call endpoints, verify responses
 - Report execution results alongside code review
 
-**Pre-Flight Checks (Step 2b — Tier 2 only):**
+**Pre-Flight Checks (Step 2b — Tier 1.5 and Tier 2):**
 Before dispatching the evaluator subagent, run available tool checks at zero LLM cost:
 - Type checker (e.g., `tsc --noEmit`, `mypy`)
 - Linter (e.g., `eslint`, `ruff`)
@@ -199,8 +219,9 @@ If the report is missing, empty, or malformed: retry the evaluation once. If the
   ```
   iteration: {N}
   dispatched_at: {ISO 8601 timestamp}
+  head_commit: {git rev-parse HEAD}
   ```
-  This file survives context compaction (the evaluator only writes `qa-report.md`, not `qa-state.md`). After compaction, read this file to recover the iteration count.
+  This file survives context compaction (the evaluator only writes `qa-report.md`, not `qa-state.md`). After compaction, read this file to recover the iteration count. The `head_commit` field enables the verification-gate to detect code staleness.
 
 **MANUAL_REVIEW_NEEDED:**
 - Excluded from the pass/fail count — does not block SHIP
@@ -255,8 +276,9 @@ Skills communicate through files, not shared context:
 |------|-----------|---------|
 | `contract.md` | contract-writing | independent-qa, verification-gate |
 | `qa-report.md` | evaluator subagent (dispatched by independent-qa) | generator (for fixes), verification-gate |
-| `qa-state.md` | independent-qa orchestrator | independent-qa on re-entry after compaction, Step 4b verification |
+| `qa-state.md` | independent-qa orchestrator | independent-qa on re-entry after compaction, Step 4b verification, verification-gate staleness check |
 | `verification-summary.md` | verification-gate | user (final deliverable) |
+| `failure-patterns.md` | independent-qa (Step 5b) | contract-writing (Step 2b) — persistent project-level learning, NOT archived |
 
 Files are written to `.harnessed/` directory in the project root to avoid polluting the workspace.
 
@@ -285,7 +307,7 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 2. If `.harnessed/qa-report.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-qa-report.md`
 3. If `.harnessed/verification-summary.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-verification-summary.md`
 
-Create `.harnessed/archive/` if it does not exist.
+Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md` — it is persistent project-level learning with a 90-day decay rule for one-off entries.
 
 **New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user.
 

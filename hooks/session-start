@@ -13,35 +13,33 @@ fi
 SKILL_FILE="$PLUGIN_ROOT/skills/using-harnessed/SKILL.md"
 
 if [ ! -f "$SKILL_FILE" ]; then
-  echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Harnessed plugin: meta-skill not found."}}'
+  printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Harnessed plugin: meta-skill not found."}}\n'
   exit 0
 fi
 
-SKILL_CONTENT=$(cat "$SKILL_FILE")
+SKILL_CONTENT=$(<"$SKILL_FILE")
 
-# JSON-escape the content
-ESCAPED=$(printf '%s' "$SKILL_CONTENT" | python3 -c '
-import sys, json
-print(json.dumps(sys.stdin.read()))
-' 2>/dev/null || printf '%s' "$SKILL_CONTENT" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/$/\\n/' | tr -d '\n' | sed 's/^/"/; s/$/"/')
+# JSON-escape the content (python3 preferred; perl fallback for systems without python3)
+ESCAPED=$(printf '%s' "$SKILL_CONTENT" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))' 2>/dev/null \
+  || printf '%s' "$SKILL_CONTENT" | perl -e '
+    use JSON::PP;
+    local $/; my $s = <STDIN>;
+    print JSON::PP->new->encode($s);
+  ' 2>/dev/null \
+  || printf '%s' "$SKILL_CONTENT" | perl -0777 -pe '
+    s/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/\r//g; s/\n/\\n/g;
+    $_ = "\"$_\"";
+  ')
 
 # Validate that ESCAPED is valid JSON string (non-empty, starts and ends with quote)
 if [ -z "$ESCAPED" ] || ! printf '%s' "$ESCAPED" | grep -q '^".*"$'; then
-  echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Harnessed plugin: failed to encode meta-skill content."}}'
+  printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Harnessed plugin: failed to encode meta-skill content."}}\n'
   exit 0
 fi
 
 # Output in the format expected by Claude Code or Cursor
-if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
-  cat <<EOF
-{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ${ESCAPED}}}
-EOF
-elif [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
-  cat <<EOF
-{"additional_context": ${ESCAPED}}
-EOF
+if [ -n "${CURSOR_PLUGIN_ROOT:-}" ]; then
+  printf '{"additional_context": %s}\n' "$ESCAPED"
 else
-  cat <<EOF
-{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": ${ESCAPED}}}
-EOF
+  printf '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": %s}}\n' "$ESCAPED"
 fi

@@ -23,7 +23,7 @@ Dispatch an isolated evaluator subagent to verify your code. The evaluator opera
 Determine the acceptance criteria source:
 
 - **Standalone mode:** Read `.harnessed/contract.md`
-- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task). Extract discrete, verifiable criteria from the spec. If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Present extracted criteria in the same format as a Harnessed contract — including a `## Verification Commands` section synthesized from the spec's testing guidance or inferred from the project's test infrastructure. Write the normalized contract to `.harnessed/contract.md` so that the verification-gate reads from the same source. Use this content for the `{CONTRACT}` placeholder. If the spec contains no identifiable requirements, invoke `harnessed:contract-writing` to create a contract.
+- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task). Extract discrete, verifiable criteria from the spec. If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Present extracted criteria in the same format as a Harnessed contract (see `skills/contract-writing/contract-format.md` for the required structure) — including a `## Verification Commands` section synthesized from the spec's testing guidance or inferred from the project's test infrastructure. Write the normalized contract to `.harnessed/contract.md` so that the verification-gate reads from the same source. Use this content for the `{CONTRACT}` placeholder. If the spec contains no identifiable requirements, invoke `harnessed:contract-writing` to create a contract.
 
 If no contract/spec exists: STOP. Invoke `harnessed:contract-writing` first. Do NOT run QA without criteria.
 
@@ -189,12 +189,18 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
 - Each round gets the LATEST diff (including fixes from previous rounds)
 - The evaluator does NOT know about previous rounds — it judges the current state independently
 - Never lower the bar between iterations. If criteria were fair in round 1, they are fair in round 3.
-- **Iteration state persistence:** Before each evaluator dispatch, write the current iteration count and dispatch timestamp to `.harnessed/qa-state.md`:
-  ```
-  iteration: {N}
-  dispatched_at: {ISO 8601 timestamp}
-  head_commit: {git rev-parse HEAD}
-  ```
+- **Iteration state management:** Before each evaluator dispatch:
+  1. If `.harnessed/qa-state.md` exists, read `iteration` from it
+  2. If `iteration` ≥ 3: STOP — escalate to user with "max iterations reached"
+  3. Otherwise: set `iteration` to previous value + 1 (or 1 if file does not exist)
+  4. Write `.harnessed/qa-state.md`:
+     ```
+     iteration: {N}
+     dispatched_at: {ISO 8601 timestamp}
+     head_commit: {git rev-parse HEAD}
+     ```
+  5. Dispatch the evaluator
+
   This file is NOT touched by the evaluator (which only writes `qa-report.md`), so it survives across QA rounds and context compaction. After compaction, read this file to recover the iteration count.
 
 ## Anti-Rationalization
