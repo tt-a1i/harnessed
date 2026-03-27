@@ -1,6 +1,6 @@
 # Review Changelog
 
-100 improvements across 9 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
+127 improvements across 14 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
 
 ## Why We Did This
 
@@ -33,6 +33,11 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 7 | 边界 | 异常状态（压缩、崩溃、并发）下数据流是否完整？ |
 | 8 | 漂移 | 文档还能准确描述实际行为吗？ |
 | 9 | 收尾 | 所有已知问题是否全部解决？ |
+| 10 | 验证强化 | 无测试项目的执行验证是否完备？ |
+| 11 | 评估器扩展 | 安全、类型、陈旧性等维度是否覆盖？ |
+| 12 | 验证门与文档同步 | 验证门流程和文档是否一致？ |
+| 13 | 边界情况与引用同步 | 非 Git、空 diff、用户覆写等边界是否处理？ |
+| 14 | 会话钩子与状态整合 | 钩子可靠性和迭代状态是否健壮？ |
 
 每一轮都由独立的子代理执行，不携带上一轮的上下文。这和 Harnessed 对用户代码做的事情完全一样：独立评估，每一轮都是新鲜的视角。
 
@@ -192,19 +197,70 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 101 | "Auto-generated files" in context budget vague | Added concrete examples (lock files, minified, dist/, build/, API clients) |
 | 102 | qa-state.md not included in artifact archival lifecycle | Added as step 3 in archive sequence |
 
+## Round 10: Verification Hardening
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 103 | Projects with dev server but no test suite skip execution verification entirely | Added Tier 1.5 HTTP smoke tests (start server, hit key endpoints, check status codes) |
+| 104 | Failure patterns not learned across sessions (same mistakes repeat) | Added project-level learning via `.harnessed/failure-patterns.md` with decay rule |
+| 105 | Contract-writing has no step to verify coverage of implementation surface | Added coverage verification step (6b) in contract-writing |
+
+## Round 11: Evaluator & Spec Expansion
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 106 | Evaluator Tier 1 code review missing security-specific checks | Added security checklist (XSS, SQL injection, auth bypass, secrets exposure) |
+| 107 | TypeScript compilation errors conflated with runtime errors in evaluator guidance | Added explicit TypeScript compilation vs runtime error discrimination guidance |
+| 108 | No mechanism to detect stale qa-state.md against current code | Added code staleness check (`head_commit` field in qa-state.md) |
+| 109 | Evaluator penalizes bugs that existed before the current task | Added pre-existing bugs discrimination rule in evaluator mindset |
+| 110 | Projects using Superpowers with no spec have no fallback for contract synthesis | Added Superpowers fallback for missing specs |
+| 111 | Tier 1.5 execution result treated symmetrically (PASS and FAIL weighted equally) | Added Tier 1.5 asymmetric execution rule (FAIL wins, PASS is informational) |
+| 112 | spec.md out of sync with Round 10–11 features | Synced spec.md with all new features |
+
+## Round 12: Verification Gate & Documentation Sync
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 113 | Staleness check buried inside verification-gate flow (easy to skip) | Promoted verification-gate staleness check to explicit Step 0 |
+| 114 | Evaluator subagent filesystem access not clearly stated | Clarified evaluator subagent has full filesystem access |
+| 115 | README.md missing three-tier verification, failure patterns, and workflow updates | Synced README.md with three-tier verification, failure patterns, workflows |
+| 116 | README.zh-CN.md diverged from English README | Synced README.zh-CN.md with same changes |
+
+## Round 13: Edge Cases & Reference Sync
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 117 | Verification-gate Step 0 staleness check fails on non-git projects | Fixed: skip staleness check for non-git projects |
+| 118 | Empty diff produces confusing evaluator output with no recovery | Added empty diff recovery path (offer `git diff HEAD~1`) |
+| 119 | HARD-GATE wording implies user cannot override (contradicts design intent) | Added explicit user override clause in HARD-GATE |
+| 120 | reference.md missing all Round 10–12 features | Updated reference.md with all new features |
+| 121 | contract-format.md complementary mode synthesis rules incomplete | Expanded contract-format.md complementary mode synthesis rules |
+
+## Round 14: Session Hook, Iteration State & Consolidation
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 122 | Session-start hook sed fallback breaks on BSD/macOS (silent failure) | Rewrote session-start hook: replaced broken sed fallback with perl chain, printf over heredoc |
+| 123 | Iteration state transitions described in prose (ambiguous for LLM execution) | Added 5-step iteration state management pseudocode |
+| 124 | Independent-qa has no pointer to contract-format.md (readers miss format rules) | Added cross-reference to contract-format.md from independent-qa |
+| 125 | Contract-writing criteria rules lack guidance for MANUAL_REVIEW_NEEDED outcomes | Added MANUAL_REVIEW_NEEDED guidance to contract-writing criteria rules |
+| 126 | Superpowers detection logic scattered across multiple files | Consolidated Superpowers detection into canonical 3-step algorithm in spec |
+| 127 | Roadmap items implemented but not marked | Marked 3 roadmap items as PARTIALLY IMPLEMENTED |
+
 ---
 
 ## Summary by Category
 
 | Category | Count |
 |----------|-------|
-| Data flow / state management fixes | 12 |
-| Edge case handling | 14 |
-| Anti-rationalization patterns | 6 |
-| Spec/docs sync | 20 |
-| Developer experience | 12 |
-| Evaluator quality | 10 |
-| Plugin structure / hooks | 8 |
-| Contract/grading system | 10 |
+| Data flow / state management fixes | 15 |
+| Edge case handling | 18 |
+| Anti-rationalization patterns | 7 |
+| Spec/docs sync | 25 |
+| Developer experience | 13 |
+| Evaluator quality | 14 |
+| Plugin structure / hooks | 10 |
+| Contract/grading system | 13 |
 | Competitive / positioning | 8 |
-| **Total** | **100** |
+| Verification hardening | 4 |
+| **Total** | **127** |
