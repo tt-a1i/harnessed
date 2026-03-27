@@ -142,11 +142,12 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 
 ```
 .harnessed/
+├── .lock                    # 咨询性会话锁（PID + 时间戳）
 ├── contract.md              # 验收标准（两种模式均写入）
+├── failure-patterns.md      # 跨任务复现的失败模式
 ├── qa-report.md             # QA 评估报告
 ├── qa-state.md              # 迭代计数与派遣时间戳
 ├── verification-summary.md  # 完成证据
-├── failure-patterns.md      # 跨任务复现的失败模式
 └── archive/                 # 前次任务的归档产物
 ```
 

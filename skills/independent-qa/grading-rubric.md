@@ -15,11 +15,11 @@
 
 ## Overall Grade
 
-- **SHIP** — All criteria PASS, zero MANUAL_REVIEW_NEEDED, zero critical findings, zero major findings affecting core. For Tier 1.5: smoke tests pass; Tier 2: test suite passes. Only grade allowing verification-gate without human review.
+- **SHIP** — All criteria PASS, zero MANUAL_REVIEW_NEEDED, zero critical findings, zero major findings. For Tier 1.5: smoke tests pass; Tier 2: test suite passes. Only grade allowing verification-gate without human review.
 - **SHIP_WITH_HUMAN_REVIEW** — All criteria PASS or MANUAL_REVIEW_NEEDED (at least one MANUAL_REVIEW_NEEDED), zero critical findings, zero major findings. Allows verification-gate but the gate MUST list pending human review items and the completion message MUST note that human review is needed.
 - **ITERATE** — One+ criteria FAIL/PARTIAL, or major findings exist. MUST list specific changes needed.
 - **BLOCKED** — Critical findings, fundamentally flawed approach, >50% criteria FAIL, or implementation contradicts contract. MUST explain why and suggest alternative.
-- **Precedence:** BLOCKED > ITERATE > SHIP when multiple conditions met.
+- **Precedence:** BLOCKED > ITERATE > SHIP_WITH_HUMAN_REVIEW > SHIP when multiple conditions met.
 
 ## Grading Integrity Rules
 

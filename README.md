@@ -140,6 +140,7 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 
 ```
 .harnessed/
+├── .lock                    # Advisory session lock (PID + timestamp)
 ├── contract.md              # Acceptance criteria (written in both modes)
 ├── failure-patterns.md      # Recurring failure categories (persistent across tasks)
 ├── qa-report.md             # QA evaluation report
