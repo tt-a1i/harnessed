@@ -53,8 +53,9 @@ cp -r harnessed/ ~/.claude/plugins/harnessed/
 
 ### 安装后
 
-1. 将 `.harnessed/` 添加到项目的 `.gitignore` — Harnessed 会在此写入 QA 产物
-2. 验证：启动新的 Claude Code 会话 — 第一次编码任务时应看到 Harnessed 提示"I'll draft acceptance criteria before coding"
+验证：启动新的 Claude Code 会话 — 第一次编码任务时应看到 Harnessed 提示"I'll draft acceptance criteria before coding"。
+
+Harnessed 首次使用时会自动将 `.harnessed/` 添加到项目的 `.gitignore`。
 
 ### 与 Superpowers 配合使用
 

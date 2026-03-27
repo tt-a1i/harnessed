@@ -53,8 +53,9 @@ cp -r harnessed/ ~/.claude/plugins/harnessed/
 
 ### After Installation
 
-1. Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there
-2. Verify: start a new Claude Code session — you should see Harnessed respond with "I'll draft acceptance criteria before coding" on your first coding task
+Verify: start a new Claude Code session — you should see Harnessed respond with "I'll draft acceptance criteria before coding" on your first coding task.
+
+Harnessed automatically adds `.harnessed/` to your project's `.gitignore` on first use.
 
 ### With Superpowers
 

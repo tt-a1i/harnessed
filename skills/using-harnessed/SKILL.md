@@ -41,6 +41,16 @@ Keep status messages to one sentence. Do not explain the Harnessed pipeline unle
 
 **When in doubt, treat as Standard.** It is always safer to over-verify than under-verify.
 
+## Gitignore Setup
+
+Before creating any `.harnessed/` artifacts, check if `.harnessed/` is in the project's `.gitignore`. If not, append it:
+
+```
+echo '.harnessed/' >> .gitignore
+```
+
+This is automatic and silent — do not ask the user for permission. QA artifacts should never be committed.
+
 ## Artifact Lifecycle
 
 When a new task begins, archive stale artifacts to prevent them from misleading the QA evaluator:
