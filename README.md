@@ -82,7 +82,7 @@ Same as above, but contract-writing is skipped (Superpowers' specs are used inst
 
 ### Project-Level Learning
 
-Harnessed tracks recurring failure categories in `.harnessed/failure-patterns.md` across tasks. During contract writing, patterns with Count ≥ 2 automatically inform acceptance criteria so the same class of bug doesn't recur. One-off patterns decay after 90 days.
+The independent QA evaluator categorizes each failure it finds, and those categories are recorded in `.harnessed/failure-patterns.md` across tasks. During contract writing, patterns with Count ≥ 2 automatically inform acceptance criteria so the same class of bug doesn't recur. One-off patterns decay after 90 days.
 
 ## Example QA Report
 
