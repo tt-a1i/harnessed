@@ -8,10 +8,10 @@ user-invocable: true
 
 Before you say "done", PROVE it.
 
-This is the final checkpoint. You must provide concrete, structured evidence that every acceptance criterion is satisfied. Prose assertions ("I implemented it correctly") are worthless. Evidence means: file paths, line numbers, test names, and command outputs.
+This is the final checkpoint. You must provide concrete, structured evidence for every acceptance criterion that can be verified automatically. Criteria marked MANUAL_REVIEW_NEEDED are listed for human follow-up, not skipped silently. Prose assertions ("I implemented it correctly") are worthless. Evidence means: file paths, line numbers, test names, and command outputs.
 
 <HARD-GATE>
-NO COMPLETION CLAIMS WITHOUT EVIDENCE FOR EVERY CRITERION.
+NO COMPLETION CLAIMS WITHOUT EVIDENCE FOR EVERY AUTOMATABLE CRITERION. Criteria requiring human judgment must be explicitly listed as pending review — never silently omitted.
 
 You may NOT use the words "done", "complete", "finished", "implemented", or any completion signal until you have passed through this gate. This is absolute.
 </HARD-GATE>
