@@ -31,6 +31,7 @@ Write the contract to `.harnessed/contract.md` using the format defined in `skil
 2. **Observable** — Describes an outcome, not an implementation detail
 3. **Atomic** — Tests one thing. "Login works and session persists" is two criteria, not one
 4. **Unambiguous** — No room for interpretation. "Fast" is bad. "Responds in <200ms" is good
+5. **Precise on expected values** — When a criterion specifies a return value or output, write the COMPLETE expected result. `returns { name: "alice" }` is ambiguous if the function always includes other fields. Write `returns { _: [], name: "alice" }` or use "contains" language: `result includes name: "alice"`
 
 ### Each criterion MUST NOT be:
 

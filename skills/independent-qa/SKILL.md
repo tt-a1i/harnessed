@@ -32,7 +32,7 @@ If no contract/spec exists: STOP. Invoke `harnessed:contract-writing` first. Do 
 Check the project for available verification infrastructure:
 
 **Test suite indicators:**
-- `package.json` with `"test"` script → can run `npm test`
+- `package.json` with `"test"` script that is NOT the default `npm init` placeholder (`echo "Error: no test specified" && exit 1`) → can run `npm test`
 - `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` → can run `pytest`
 - `Makefile` with `test` target → can run `make test`
 - `go.mod` present → can run `go test ./...`
