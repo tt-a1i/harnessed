@@ -78,7 +78,7 @@ Same as above, but contract-writing is skipped (Superpowers' specs are used inst
 
 - **Tier 1 (Code Review)** — Always available. Evaluator reads the diff and checks criteria.
 - **Tier 1.5 (HTTP Smoke Tests)** — Auto-detected when a dev server is running but no test suite is present. Evaluator uses curl/HTTP requests to verify behavior against the live server.
-- **Tier 2 (Execution Verification)** — Auto-detected when test frameworks or dev servers are present. Evaluator runs tests and interacts with the application.
+- **Tier 2 (Execution Verification)** — Auto-detected when test frameworks are present. Evaluator runs tests and interacts with the application.
 
 ### Project-Level Learning
 

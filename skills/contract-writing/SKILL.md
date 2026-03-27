@@ -34,11 +34,10 @@ Write the contract to `.harnessed/contract.md` using the format defined in `skil
 
 ### Each criterion MUST NOT be:
 
-1. **Subjective** — "Code is clean", "Good UX", "Well-structured" are NOT criteria
+1. **Subjective** — "Code is clean", "Good UX", "Well-structured" are NOT criteria. Criteria that can only be verified by human judgment (visual design fidelity, UX feel) will be graded MANUAL_REVIEW_NEEDED by the evaluator. Prefer automatable criteria; if subjective ones are necessary, keep them to a minimum.
 2. **Implementation-prescriptive** — "Use a HashMap" is not a criterion. "Lookup is O(1)" might be
 3. **Untestable** — If you can't describe how to verify it, it's not a criterion
 4. **Redundant** — Each criterion adds unique verification value
-5. **Purely subjective** — Criteria that can only be verified by human judgment (visual design fidelity, UX feel) will be graded MANUAL_REVIEW_NEEDED by the evaluator and require human review. Prefer automatable criteria; if subjective criteria are necessary, keep them to a minimum
 
 ### Sizing
 

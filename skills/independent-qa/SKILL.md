@@ -74,7 +74,7 @@ Collect the following — this is ALL the evaluator will see:
 | The contract/spec content | Criteria to evaluate against |
 | `git diff HEAD` output (captures both staged and unstaged changes) | The actual code to review |
 | Project stack info (language, framework, test runner) | Context for evaluation |
-| Verification tier (1 or 2) | What the evaluator can do |
+| Verification tier (1, 1.5, or 2) | What the evaluator can do |
 | Available verification commands from contract | How to verify |
 
 **DO NOT include:**
@@ -171,7 +171,7 @@ After a SHIP result, append a brief log entry:
 
 ```
 ## QA Summary
-- Tier: {1 or 2}
+- Tier: {1, 1.5, or 2}
 - Iterations: {count}
 - Final grade: SHIP
 - Key findings fixed: {brief list of issues caught and fixed during iterations, if any}
@@ -193,15 +193,19 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
   1. If `.harnessed/qa-state.md` exists, read `iteration` from it
   2. If `iteration` ≥ 3: STOP — escalate to user with "max iterations reached"
   3. Otherwise: set `iteration` to previous value + 1 (or 1 if file does not exist)
-  4. Write `.harnessed/qa-state.md`:
+  4. Compute a hash of `.harnessed/contract.md`: `md5 -q .harnessed/contract.md` (macOS) or `md5sum .harnessed/contract.md | cut -d' ' -f1` (Linux)
+  5. Write `.harnessed/qa-state.md`:
      ```
      iteration: {N}
      dispatched_at: {ISO 8601 timestamp}
      head_commit: {git rev-parse HEAD}
+     contract_hash: {md5 hash of contract.md}
      ```
-  5. Dispatch the evaluator
+  6. Dispatch the evaluator
 
   This file is NOT touched by the evaluator (which only writes `qa-report.md`), so it survives across QA rounds and context compaction. After compaction, read this file to recover the iteration count.
+
+  **Contract tamper detection:** On iteration 2+, compare the current contract hash against the stored `contract_hash`. If they differ and the user did not request a contract change, STOP — the contract was modified between QA rounds. Either revert the contract or re-run QA from iteration 1 with the updated contract.
 
 ## Anti-Rationalization
 

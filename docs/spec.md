@@ -206,22 +206,30 @@ If the report is missing, empty, or malformed: retry the evaluation once. If the
 **Grading:**
 - Per-criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED (with explanation)
 - Overall: SHIP / ITERATE / BLOCKED
-  - SHIP: all criteria pass, no critical issues
+  - SHIP: all criteria pass (MANUAL_REVIEW_NEEDED excluded from count), no critical issues
   - ITERATE: some criteria fail, fixable issues identified
   - BLOCKED: fundamental problems requiring re-approach
+- **Severity precedence:** When multiple grade conditions are met, the most severe wins: BLOCKED > ITERATE > SHIP
 
 **Iteration Loop:**
 - If ITERATE: QA report fed back to generator, generator fixes, QA re-runs
 - Max 3 iterations
 - If still ITERATE after max: escalate to user with full report
 - If BLOCKED at any point: escalate immediately
-- Iteration count is persisted in `.harnessed/qa-state.md` with format:
-  ```
-  iteration: {N}
-  dispatched_at: {ISO 8601 timestamp}
-  head_commit: {git rev-parse HEAD}
-  ```
-  This file survives context compaction (the evaluator only writes `qa-report.md`, not `qa-state.md`). After compaction, read this file to recover the iteration count. The `head_commit` field enables the verification-gate to detect code staleness.
+- **Iteration state management** — before each evaluator dispatch:
+  1. If `qa-state.md` exists, read `iteration`; if ≥ 3, escalate to user
+  2. Increment iteration (or set to 1 if first run)
+  3. Compute hash of `contract.md` (tamper detection)
+  4. Write `.harnessed/qa-state.md`:
+     ```
+     iteration: {N}
+     dispatched_at: {ISO 8601 timestamp}
+     head_commit: {git rev-parse HEAD}
+     contract_hash: {md5 of contract.md}
+     ```
+  5. On iteration 2+: compare current contract hash to stored value; if different without user-requested change, stop and re-run from iteration 1
+  6. Dispatch the evaluator
+- This file survives context compaction (the evaluator only writes `qa-report.md`, not `qa-state.md`). After compaction, read this file to recover the iteration count. The `head_commit` field enables the verification-gate to detect code staleness. The `contract_hash` field prevents contract modification between QA rounds.
 
 **MANUAL_REVIEW_NEEDED:**
 - Excluded from the pass/fail count — does not block SHIP
@@ -305,7 +313,8 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 
 1. If `.harnessed/contract.md` exists from a previous task, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-contract.md`
 2. If `.harnessed/qa-report.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-qa-report.md`
-3. If `.harnessed/verification-summary.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-verification-summary.md`
+3. If `.harnessed/qa-state.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-qa-state.md`
+4. If `.harnessed/verification-summary.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-verification-summary.md`
 
 Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md` — it is persistent project-level learning with a 90-day decay rule for one-off entries.
 
