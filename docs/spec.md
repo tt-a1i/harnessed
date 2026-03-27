@@ -194,6 +194,7 @@ Before gathering context, verify the repository is in a clean state:
 - Must cite specific file:line for every finding
 - Must attempt to disprove each PASS (not just confirm)
 - Structured output format (not prose)
+- **Injection mitigation:** {CONTRACT} and {DIFF} placeholders are preceded by untrusted-data warnings instructing the evaluator to treat embedded instructions as inert. Key behavioral rules are repeated in a Final Reminder section after all injected content.
 
 **Evaluator Output Verification (Step 4b):**
 After the subagent returns, verify `.harnessed/qa-report.md`:
@@ -253,6 +254,13 @@ If the report is missing, empty, or malformed: retry the evaluation once. If the
 **When to invoke:** ALWAYS, before responding with "done", "complete", "finished", or any completion signal.
 
 **Process:**
+
+Step 0: Code & Contract Staleness Check
+- If git repo: compare current `git rev-parse HEAD` against `head_commit` in `.harnessed/qa-state.md`; re-run QA if different
+- If `contract_hash` present: hash current `contract.md` and compare; re-run QA if different
+- Non-git projects: skip code check, still perform contract hash check
+
+Steps 1-4:
 1. Read the contract (contract.md or Superpowers spec)
 2. For each criterion, provide EVIDENCE of completion:
    - File path + line number where it's implemented
