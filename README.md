@@ -19,7 +19,7 @@ Micro:          Task → Code → Gate → Done
 ```
 
 - **Contract Writing** — Testable acceptance criteria before coding begins. After drafting, every user requirement is mapped to a criterion and gaps are filled automatically.
-- **Independent QA** — Isolated evaluator subagent grades code against the contract
+- **Independent QA** — Isolated evaluator path grades code against the contract. High-risk tasks use corroborating reviewers, security-sensitive tasks add a dedicated security reviewer, and reviewer disagreement triggers tie-break escalation.
 - **Verification Gate** — Structured evidence (file:line citations) required before "done". If code changed since QA last ran, the gate re-runs QA before accepting.
 
 ## Installation
@@ -74,11 +74,13 @@ When both are installed, Harnessed QA runs after Superpowers' process completes.
 1. You give a coding task
 2. **Contract Writing** generates testable acceptance criteria → `.harnessed/contract.md`
 3. Agent writes code
-4. **Independent QA** dispatches an isolated evaluator subagent
-   - Evaluator sees: diff + contract + project context
-   - Evaluator does NOT see: generator's reasoning or self-assessment
-   - Evaluator grades each criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - Overall grade: **SHIP** (all pass — ready to complete) / **SHIP_WITH_HUMAN_REVIEW** (code checks pass but some criteria need human verification) / **ITERATE** (issues found — agent fixes and re-runs QA) / **BLOCKED** (fundamental problems — requires your input)
+4. **Independent QA** dispatches isolated reviewers
+   - Primary evaluator sees: diff + contract + project context
+   - Evaluators do NOT see: generator's reasoning or self-assessment
+   - High-risk tasks use corroborating review, disagreement-triggered tie-break review, and explicit calibration status
+   - Security-sensitive tasks add heuristic security issue flagging plus Semgrep/CodeQL/bandit outputs when available
+   - QA reports now record **Confidence** and **Uncertainty** so weak evidence is downgraded instead of overstated
+   - Overall grade: **SHIP** / **SHIP_WITH_HUMAN_REVIEW** / **ITERATE** / **BLOCKED**
 5. If ITERATE: agent fixes issues, QA re-runs (max 3 rounds)
 6. If SHIP or SHIP_WITH_HUMAN_REVIEW: **Verification Gate** collects file:line evidence for every criterion
 7. Task complete with full audit trail
@@ -153,7 +155,33 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 
 ## Cost
 
-Each QA round spawns one evaluator subagent. A typical task uses 1-2 QA rounds. Expect roughly 1.5x the token usage of coding without Harnessed. The tradeoff: catching bugs before the user reports them vs. catching them after.
+Harnessed trades speed for confidence. Costs are not only token costs.
+
+- **Token cost** — A typical standard task uses 1-2 QA rounds. High-risk tasks may use corroborating review, security review, and tie-break review.
+- **Latency / cycle time** — Independent QA, reruns, and high-risk corroboration add time before completion. The point is to catch issues before release, not to optimize for the fastest possible green check.
+- **Developer friction** — Review comments, explicit evidence gathering, and pending-human-review carry-through add workflow friction. That friction is deliberate when the task is risky, but it is still a real cost.
+
+## When Not to Use the Full Pipeline
+
+Use the lighter path when:
+- the task is truly micro and inert
+- the user explicitly asks to skip QA
+- you are doing throwaway exploration that will be discarded
+
+Do **not** use the lighter path for auth, security, destructive data changes, public endpoints, or release-blocking work.
+
+## Trust Model
+
+Harnessed is designed to **lower self-evaluation bias and increase issue-finding rate**. It does **not** claim perfect objectivity.
+
+- Independent evaluators are more trustworthy than self-assessment, but they still have evaluator bias
+- Confidence and uncertainty are first-class outputs
+- High-risk tasks use corroborating review and tie-break escalation
+- Security review is **security issue flagging / heuristic review**, not a complete security audit
+
+## Injection Mitigation
+
+Harnessed uses **prompt-level mitigation** for untrusted artifacts such as contracts and diffs. It treats them as data, not instructions. This helps, but it is **not a complete safety boundary**. System-level isolation, tool allowlists, and explicit trusted/untrusted context partitioning remain part of the architecture, especially for high-risk review paths.
 
 ## Customization
 

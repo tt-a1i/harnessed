@@ -2,7 +2,7 @@
 
 ## Vision
 
-A Claude Code plugin that gives coding agents an independent quality verification loop. Code is not "done" until an isolated evaluator confirms it works.
+A Claude Code plugin that gives coding agents an independent quality verification loop. Code is not "done" until isolated review lowers self-evaluation bias, surfaces evidence, and carries forward any remaining human-review requirements honestly.
 
 **Standalone:** Complete and effective without Superpowers — lightweight planning + independent verification produces better outcomes than elaborate process without verification.
 
@@ -75,7 +75,7 @@ All skills that check for Superpowers MUST use this single procedure:
 
 **Anti-Rationalization Rules:**
 - "This change is too small for QA" → If it touches logic, it gets QA
-- "I already tested it myself" → Self-testing is not independent testing
+- "I already tested it myself" → Self-testing is useful preparation, but it is not independent verification
 - "The tests pass" → Tests passing != feature working correctly
 - "It's just a refactor" → Refactors introduce regressions; QA is mandatory
 
@@ -194,7 +194,7 @@ Before gathering context, verify the repository is in a clean state:
 - Must cite specific file:line for every finding
 - Must attempt to disprove each PASS (not just confirm)
 - Structured output format (not prose)
-- **Injection mitigation:** {CONTRACT} and {DIFF} placeholders are preceded by untrusted-data warnings instructing the evaluator to treat embedded instructions as inert. Key behavioral rules are repeated in a Final Reminder section after all injected content.
+- **Prompt-level injection mitigation:** {CONTRACT} and {DIFF} placeholders are preceded by untrusted-data warnings instructing the evaluator to treat embedded instructions as inert. This is mitigation, not a complete safety boundary. High-risk architecture also assumes sandboxed execution, minimal-permission tooling, and explicit trusted/untrusted context partitioning.
 - **Failure Categories output:** On ITERATE/BLOCKED, the evaluator writes a `## Failure Categories` table in `qa-report.md` listing named categories for each FAIL/PARTIAL criterion. The orchestrator copies these verbatim to `failure-patterns.md` — it does not rephrase or judge them independently.
 
 **Evaluator Output Verification (Step 4b):**
@@ -207,11 +207,12 @@ If the report is missing, empty, or malformed: retry the evaluation once. If the
 
 **Grading:**
 - Per-criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED (with explanation)
-- Overall: SHIP / ITERATE / BLOCKED
-  - SHIP: all criteria pass (MANUAL_REVIEW_NEEDED excluded from count), no critical issues
-  - ITERATE: some criteria fail, fixable issues identified
+- Overall: SHIP / SHIP_WITH_HUMAN_REVIEW / ITERATE / BLOCKED
+  - SHIP: all automatable criteria pass with sufficient confidence
+  - SHIP_WITH_HUMAN_REVIEW: automatable checks pass but human review remains required because of manual-review criteria, low confidence on a high-risk boundary, stale calibration, or heuristic-only security review
+  - ITERATE: some criteria fail or evidence is too weak
   - BLOCKED: fundamental problems requiring re-approach
-- **Severity precedence:** When multiple grade conditions are met, the most severe wins: BLOCKED > ITERATE > SHIP
+- **Severity precedence:** When multiple grade conditions are met, the most severe wins: BLOCKED > ITERATE > SHIP_WITH_HUMAN_REVIEW > SHIP
 
 **Iteration Loop:**
 - If ITERATE: QA report fed back to generator, generator fixes, QA re-runs
@@ -272,7 +273,7 @@ Steps 1-4:
 
 **HARD-GATE:**
 ```
-NO COMPLETION CLAIMS WITHOUT EVIDENCE FOR EVERY CRITERION
+NO COMPLETION CLAIMS WITHOUT EVIDENCE FOR EVERY AUTOMATABLE CRITERION
 ```
 
 **Anti-Rationalization:**
@@ -328,6 +329,28 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md` — it is persistent project-level learning with a 90-day decay rule for one-off entries.
 
 **New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user.
+
+---
+
+## Final Architecture Extensions
+
+### Evaluator Governance
+- QA reports record `Review Mode`, `Risk Level`, `Calibration Status`, `Confidence`, and `Uncertainty`
+- High-risk tasks use corroborating review; material disagreement triggers a tie-break reviewer
+- Security-sensitive tasks add a dedicated security reviewer and static-analysis evidence when available
+- Stale or missing calibration downgrades high-risk clean outcomes to human-review carry-through rather than plain SHIP
+
+### Security Positioning
+- Harnessed performs **security issue flagging / heuristic review**
+- Semgrep, CodeQL, and bandit are treated as strong supporting evidence when available
+- Absence of a finding is never treated as proof of security
+- Security-sensitive tasks must preserve explicit human review in the final gate unless evidence is strong enough to remove uncertainty
+
+### Cost Model
+- Token cost is only one dimension
+- Latency / cycle time and developer friction are explicit trade-offs
+- Micro tasks and throwaway exploration may use the lighter path, but high-risk work should not
+
 
 ---
 

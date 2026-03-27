@@ -19,7 +19,7 @@ Harnessed 为 AI 编程工作流添加独立 QA 循环：
 ```
 
 - **合约编写** — 编码前生成可测试的验收标准。起草完成后，系统会将每个用户需求映射到至少一条标准，补充遗漏。
-- **独立 QA** — 隔离的评估子代理按合约逐条评分
+- **独立 QA** — 隔离评审路径按合约逐条评分。高风险任务会启用交叉评审，安全敏感任务会增加专用安全 reviewer，评审分歧会触发 tie-break 升级。
 - **验证门** — 需要结构化证据（file:line 引用）才能声明"完成"。验证门会检查 QA 之后代码是否发生变化，如果变了则重新运行 QA。
 
 ## 安装
@@ -74,11 +74,13 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 1. 你给出一个编码任务
 2. **合约编写** 生成可测试的验收标准 → `.harnessed/contract.md`
 3. 代理编写代码
-4. **独立 QA** 派遣隔离的评估子代理
-   - 评估器看到：diff + 合约 + 项目上下文
-   - 评估器看不到：生成器的推理过程或自我评估
-   - 评估器对每条标准评分：PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - 总体评级：**SHIP**（全部通过，可以完成）/ **SHIP_WITH_HUMAN_REVIEW**（代码检查通过但部分标准需人工验证）/ **ITERATE**（发现问题，代理修复后重跑 QA）/ **BLOCKED**（根本性问题，需要你介入）
+4. **独立 QA** 派遣隔离评审者
+   - 主评估器看到：diff + 合约 + 项目上下文
+   - 评审者看不到：生成器的推理过程或自我评估
+   - 高风险任务使用交叉评审、分歧触发的 tie-break 评审以及显式 calibration status
+   - 安全敏感任务会增加启发式安全问题标记，并在可用时结合 Semgrep / CodeQL / bandit 输出
+   - QA 报告显式记录 **Confidence** 与 **Uncertainty**，弱证据必须降级处理，不能硬判 PASS
+   - 总体评级：**SHIP** / **SHIP_WITH_HUMAN_REVIEW** / **ITERATE** / **BLOCKED**
 5. 如果 ITERATE：代理修复问题，QA 重新运行（最多 3 轮）
 6. 如果 SHIP 或 SHIP_WITH_HUMAN_REVIEW：**验证门** 收集每条标准的 file:line 证据
 7. 任务完成，附完整审计记录
@@ -155,7 +157,33 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 
 ## 成本
 
-每轮 QA 派遣一个评估子代理。典型任务使用 1-2 轮 QA。预计 token 用量约为不使用 Harnessed 时的 1.5 倍。权衡：在用户发现 bug 之前捕获它们，还是之后。
+Harnessed 用速度换取更高的验证信心。成本不只是 token。
+
+- **Token 成本** — 标准任务通常需要 1-2 轮 QA；高风险任务还可能增加交叉评审、安全评审与 tie-break 评审。
+- **Latency / cycle time** — 独立 QA、重跑以及高风险交叉评审都会拉长完成时间。目标不是最快交付，而是在发布前发现问题。
+- **Developer friction** — 评审意见、结构化证据、以及待人工复核项都会增加流程摩擦。这在高风险任务上是有意设计，但它仍然是真实成本。
+
+## 什么时候不该用完整流水线
+
+适合走轻量路径的情况：
+- 任务确实是微任务且不影响逻辑
+- 用户明确要求跳过 QA
+- 只是一次性探索、结果不会保留
+
+不适合走轻量路径的情况：认证、授权、安全、破坏性数据变更、公开接口、发布阻断项。
+
+## 信任模型
+
+Harnessed 的目标是**降低自评偏差、提高发现率**，而不是宣称评估器绝对客观。
+
+- 独立评估器通常比自评更可靠，但它们也有 evaluator bias
+- Confidence 与 Uncertainty 是一等输出
+- 高风险任务使用交叉评审和 tie-break 升级
+- 安全评审的定位是 **security issue flagging / heuristic review**，不是完整安全审计
+
+## 注入缓解
+
+Harnessed 对 contract、diff 等不可信产物使用 **prompt-level mitigation**：把它们当数据而不是指令。这有帮助，但**不是完整安全边界**。对于高风险评审路径，系统级隔离、工具 allowlist、以及 trusted/untrusted context 显式分区仍然是架构的一部分。
 
 ## 自定义
 

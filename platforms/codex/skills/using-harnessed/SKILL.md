@@ -9,7 +9,7 @@ description: Use at the start of every session and before completing any coding 
 This skill is for the main session agent only. Subagents (including QA evaluators) should not load or follow these instructions.
 </SUBAGENT-STOP>
 
-Harnessed ensures that code you write is independently reviewed before being declared complete. Your work is not "done" until an isolated evaluator — separate from you — has reviewed it. For criteria that require human judgment, the evaluator flags them for manual review rather than guessing.
+Harnessed ensures that code you write is independently reviewed before being declared complete. Self-critique is useful for improving a draft, but it is not independent verification and it cannot replace the final QA and gate. Harnessed lowers self-evaluation bias and improves issue-finding rate; it does not claim perfect objectivity.
 
 ## Detect Operating Mode
 
@@ -17,7 +17,7 @@ Harnessed ensures that code you write is independently reviewed before being dec
 
 - **Superpowers detected → Complementary Mode** — SKIP `harnessed:contract-writing`; use Superpowers specs as acceptance criteria.
 - **Superpowers not detected → Standalone Mode** — USE `harnessed:contract-writing` before any coding task.
-- **Superpowers detected but no specs available** → Fall back to Standalone Mode. This can happen if Superpowers is installed but the SessionStart hook failed or no planning specs exist yet. If the `superpowers` directory exists but `docs/superpowers/specs/` is empty or missing, treat as Standalone.
+- **Superpowers detected but no specs available** → Fall back to Standalone Mode.
 
 Both modes USE `harnessed:independent-qa` after each coding round and `harnessed:verification-gate` before completion.
 
@@ -41,6 +41,15 @@ Keep status messages to one sentence. Do not explain the Harnessed pipeline unle
 
 **When in doubt, treat as Standard.** It is always safer to over-verify than under-verify.
 
+## High-Risk Task Detection
+
+Flag the task as **high-risk** if ANY of the following are true:
+- touches authentication, authorization, secrets, credentials, cryptography, payments, privacy, permissions, data deletion, destructive migrations, infrastructure, or production configuration
+- exposes a new public endpoint, external integration, or admin path
+- user explicitly says the task is security-sensitive, compliance-sensitive, or release-blocking
+
+High-risk tasks use the expanded QA path in `harnessed:independent-qa`: corroborating review, disagreement handling, and explicit human-review carry-through where needed.
+
 ## Gitignore Setup
 
 Before creating any `.harnessed/` artifacts, check if `.harnessed/` is already in the project's `.gitignore`. Only append if absent:
@@ -49,7 +58,7 @@ Before creating any `.harnessed/` artifacts, check if `.harnessed/` is already i
 grep -qxF '.harnessed/' .gitignore 2>/dev/null || echo '.harnessed/' >> .gitignore
 ```
 
-This is automatic, silent, and idempotent — running multiple times will not create duplicate entries. Do not ask the user for permission. QA artifacts should never be committed.
+This is automatic, silent, and idempotent. Do not ask the user for permission. QA artifacts should never be committed.
 
 ## Concurrent Session Detection
 
@@ -61,7 +70,7 @@ Before writing any artifacts, check for an active session lock:
 4. If the process is dead (stale lock): remove the lock file silently and proceed
 5. Write `.harnessed/.lock` with the current shell's PID (`$$`) and ISO 8601 timestamp
 
-The lock file is advisory, not mandatory — it warns but does not block. Clean up the lock file when the task completes (after verification-gate or after the user ends the task).
+The lock file is advisory, not mandatory — it warns but does not block. Clean up the lock file when the task completes.
 
 ## Artifact Lifecycle
 
@@ -69,29 +78,29 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 
 1. If `.harnessed/contract.md` exists from a previous task, rename it to `.harnessed/archive/{timestamp}-contract.md`
 2. If `.harnessed/qa-report.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-report.md`
-3. If `.harnessed/qa-state.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-state.md`
-4. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
+3. If `.harnessed/qa-report-secondary.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-report-secondary.md`
+4. If `.harnessed/qa-report-security.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-report-security.md`
+5. If `.harnessed/qa-report-tiebreak.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-report-tiebreak.md`
+6. If `.harnessed/qa-state.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-state.md`
+7. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
 
-Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md` — it is persistent project-level learning that accumulates across tasks.
-
-**New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user: "Is this a new task or a continuation of the current one?"
+Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md`.
 
 ## Anti-Rationalization
 
-Every rationalization below has been observed in production and leads to bugs shipping:
-
 | Your Thought | Why It's Wrong | What To Do |
 |-------------|---------------|------------|
-| "This change is too small for QA" | 3-line diffs cause production outages. Size does not predict risk. | If it touches logic, run QA. Use micro routing ONLY for truly inert changes. |
+| "This change is too small for QA" | 3-line diffs cause production outages. Size does not predict risk. | If it touches logic, run QA. |
 | "The user didn't ask for QA" | The user installed Harnessed. That IS asking for QA. | Run QA. |
-| "I'll QA everything at the end" | Compound bugs are exponentially harder to find and fix than incremental ones. | QA after each coding round, not at the end. |
+| "I'll QA everything at the end" | Compound bugs are exponentially harder to find and fix than incremental ones. | QA after each coding round. |
 | "The evaluator was too strict last time" | Strictness is the point. If criteria are wrong, fix the criteria. Never weaken the evaluator. | Adjust the contract, not the evaluator's standards. |
-| "This project has no tests, so QA can't verify much" | Tier 1 code review alone catches logic errors, off-by-one bugs, missing error handling, and regressions. Independence is the value, not execution. | Run QA at Tier 1. Code review is still more reliable than self-assessment. |
+| "My self-review already covered this" | Self-review is useful preparation, but it is still biased because you know what you intended to build. | Keep the self-review notes for yourself, then run independent QA anyway. |
+| "This project has no tests, so QA can't verify much" | Tier 1 code review still catches logic errors, regressions, and missing handling. Independence is the value, not just execution. | Run QA at the strongest tier available. |
 
 <HARD-GATE>
-NON-NEGOTIABLE. "It's fine this one time" is NEVER true. If you think any thought from the table above, STOP and follow the correct procedure.
+NON-NEGOTIABLE. Self-critique may improve a draft, but it never replaces independent verification.
 
-**User override:** HARD-GATEs prevent agent rationalization, not explicit user instructions. If the user directly requests "skip QA for this task" or "treat this as micro", respect it — the user has authority over their workflow. But never skip on your own initiative.
+**User override:** HARD-GATEs prevent agent rationalization, not explicit user instructions. If the user directly requests "skip QA for this task" or "treat this as micro", respect it.
 </HARD-GATE>
 
 ## Quick Reference
@@ -103,7 +112,9 @@ Standalone Mode:
 Complementary Mode (with Superpowers):
   Task → [Superpowers planning] → CODE → independent-qa → (fix loop) → verification-gate → Done
 
+High-Risk Mode:
+  Task → contract/spec → CODE → independent-qa (corroborating reviewers + possible tie-break) → verification-gate → Done
+
 Micro Task:
   Task → CODE → verification-gate → Done
 ```
-
