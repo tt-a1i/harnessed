@@ -64,6 +64,7 @@ Before gathering context, verify the repository is in a clean state for evaluati
 
 - **Merge conflict active:** Check for `.git/MERGE_HEAD`. If present, STOP — do not dispatch the evaluator. Inform the user: "Cannot run QA during an active merge conflict. Resolve the conflict first."
 - **Diff command:** Use `git diff HEAD` to capture both staged and unstaged changes. Plain `git diff` misses staged changes.
+- **Untracked files:** Run `git ls-files --others --exclude-standard` to detect new files not yet staged. If any are found, append their full contents to the diff context with a header: `--- Untracked new files (not yet staged) ---` followed by the file path and contents. This avoids requiring `git add` while still giving the evaluator visibility into new code.
 
 ### Step 3: Gather Context for Evaluator
 
@@ -86,7 +87,7 @@ Collect the following — this is ALL the evaluator will see:
 
 The evaluator must judge the CODE, not your INTENT.
 
-**If `git diff` produces no output:** STOP. Do not dispatch the evaluator. Inform the user that there are no code changes to evaluate. Offer: "If changes were already committed, I can evaluate the last commit using `git diff HEAD~1`. Would you like me to do that?" If the user agrees, use `git diff HEAD~1` as the diff source and proceed normally.
+**If `git diff` produces no output AND no untracked files are found:** STOP. Do not dispatch the evaluator. Inform the user that there are no code changes to evaluate. Offer: "If changes were already committed, I can evaluate the last commit using `git diff HEAD~1`. Would you like me to do that?" If the user agrees, use `git diff HEAD~1` as the diff source and proceed normally.
 
 **If the project is not a git repository:** Collect changes by listing all files created or modified during this session. Provide full file contents to the evaluator in place of the diff, with a note: "No git repository. Full file contents provided." The evaluator should review these against the contract criteria.
 
@@ -111,6 +112,7 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
    - `{VERIFICATION_COMMANDS}` — commands from contract
    - `{GRADING_RUBRIC}` — content from `grading-rubric.md`
 4. Paste the FULL content of each placeholder. Never summarize, truncate, or paraphrase. The evaluator sees ONLY what you provide — omitted content is invisible content.
+5. **Conditional Tier sections:** When constructing the prompt from evaluator-prompt.md, only include the Tier section(s) relevant to the detected tier. For Tier 1: omit "Tier 1.5" and "Tier 2" sections. For Tier 1.5: omit "Tier 2" section. For Tier 2: omit "Tier 1.5" section. Also omit the corresponding subsections from the Output Format (e.g., omit "HTTP Smoke Tests" for Tier 1, omit "Test Suite" for Tier 1.5). This reduces prompt size significantly for simple evaluations.
 
 **Subagent configuration:**
 - Tool: Agent tool
