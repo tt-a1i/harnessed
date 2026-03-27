@@ -13,12 +13,14 @@ AI coding agents evaluate their own work — and get it wrong. Research shows se
 Harnessed adds an independent QA loop to your AI coding workflow:
 
 ```
-Task → Contract → Code → Independent QA → Fix Loop → Verification Gate → Done
+Standalone:     Task → Contract → Code → QA → Fix Loop → Gate → Done
+Complementary:  Task → SP Planning → Code → QA → Fix Loop → Gate → Done
+Micro:          Task → Code → Gate → Done
 ```
 
-- **Contract Writing** — Testable acceptance criteria before coding begins
+- **Contract Writing** — Testable acceptance criteria before coding begins. After drafting, every user requirement is mapped to a criterion and gaps are filled automatically.
 - **Independent QA** — Isolated evaluator subagent grades code against the contract
-- **Verification Gate** — Structured evidence (file:line citations) required before "done"
+- **Verification Gate** — Structured evidence (file:line citations) required before "done". If code changed since QA last ran, the gate re-runs QA before accepting.
 
 ## Installation
 
@@ -50,7 +52,7 @@ Harnessed detects Superpowers automatically. When both are installed:
 - Harnessed handles independent QA and verification
 - No duplication, no conflict
 
-When both are installed, Harnessed QA runs after Superpowers' process completes.
+When both are installed, Harnessed QA runs after Superpowers' process completes. If Superpowers is detected but no specs exist for the current task, Harnessed falls back to Standalone Mode.
 
 ## How It Works
 
@@ -72,10 +74,15 @@ When both are installed, Harnessed QA runs after Superpowers' process completes.
 
 Same as above, but contract-writing is skipped (Superpowers' specs are used instead).
 
-### Two-Tier Verification
+### Three-Tier Verification
 
 - **Tier 1 (Code Review)** — Always available. Evaluator reads the diff and checks criteria.
+- **Tier 1.5 (HTTP Smoke Tests)** — Auto-detected when a dev server is running but no test suite is present. Evaluator uses curl/HTTP requests to verify behavior against the live server.
 - **Tier 2 (Execution Verification)** — Auto-detected when test frameworks or dev servers are present. Evaluator runs tests and interacts with the application.
+
+### Project-Level Learning
+
+Harnessed tracks recurring failure categories in `.harnessed/failure-patterns.md` across tasks. During contract writing, patterns with Count ≥ 2 automatically inform acceptance criteria so the same class of bug doesn't recur. One-off patterns decay after 90 days.
 
 ## Example QA Report
 

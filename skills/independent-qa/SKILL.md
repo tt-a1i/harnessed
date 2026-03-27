@@ -116,6 +116,7 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
 - Tool: Agent tool
 - Description: "Independent QA evaluation"
 - Permissions: the subagent needs read, write, and execute permissions (required for Tier 2 execution verification and writing qa-report.md)
+- The evaluator runs in the project directory with full filesystem access — it can read any file, run commands, and search the codebase beyond the diff
 - The evaluator writes its report to `.harnessed/qa-report.md`
 
 **Escalation protocol:** If the evaluator encounters a criterion it cannot assess (e.g., requires manual browser testing, visual design judgment, or UX feel that cannot be verified programmatically), it must mark that criterion as `MANUAL_REVIEW_NEEDED` rather than guessing. The evaluator should never fabricate a PASS or FAIL for something it cannot actually verify.
@@ -192,6 +193,7 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
   ```
   iteration: {N}
   dispatched_at: {ISO 8601 timestamp}
+  head_commit: {git rev-parse HEAD}
   ```
   This file is NOT touched by the evaluator (which only writes `qa-report.md`), so it survives across QA rounds and context compaction. After compaction, read this file to recover the iteration count.
 

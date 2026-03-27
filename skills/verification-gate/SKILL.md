@@ -22,7 +22,19 @@ You may NOT use the words "done", "complete", "finished", "implemented", or any 
 - Before responding with ANY completion signal to the user
 - For micro tasks: this is the ONLY Harnessed gate (no contract or QA needed)
 
+
 ## Process
+
+### Step 0: Code Staleness Check
+
+Before collecting evidence, verify the code has not changed since QA ran:
+
+1. Read `.harnessed/qa-state.md` and extract the `head_commit` field
+2. Run `git rev-parse HEAD` to get the current commit
+3. If they differ: code has changed since QA — re-run `harnessed:independent-qa` before proceeding
+4. If qa-state.md does not exist (micro task): skip this step
+
+Stale QA evidence is not evidence.
 
 ### Step 1: Locate Criteria Source
 
@@ -40,6 +52,7 @@ For EACH criterion, provide ONE of the following evidence types:
 | **Test citation** | `test_file.ext:15` — test name: "{name}" | A test covers this criterion |
 | **Command output** | `$ command` → `{output}` | Running a command proves it works |
 | **QA confirmation** | "QA Report: criterion PASS with evidence at file:line" | QA already verified this |
+| **HTTP smoke test** | `$ curl ...` → `{status + body}` | Tier 1.5: QA ran HTTP tests against dev server |
 
 **Rules for evidence:**
 - Each citation must be CURRENT — verify the file and line STILL contain what you claim
