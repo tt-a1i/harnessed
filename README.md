@@ -78,9 +78,9 @@ When both are installed, Harnessed QA runs after Superpowers' process completes.
    - Evaluator sees: diff + contract + project context
    - Evaluator does NOT see: generator's reasoning or self-assessment
    - Evaluator grades each criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - Overall grade: **SHIP** (all pass — ready to complete) / **ITERATE** (issues found — agent fixes and re-runs QA) / **BLOCKED** (fundamental problems — requires your input)
+   - Overall grade: **SHIP** (all pass — ready to complete) / **SHIP_WITH_HUMAN_REVIEW** (code checks pass but some criteria need human verification) / **ITERATE** (issues found — agent fixes and re-runs QA) / **BLOCKED** (fundamental problems — requires your input)
 5. If ITERATE: agent fixes issues, QA re-runs (max 3 rounds)
-6. If SHIP: **Verification Gate** collects file:line evidence for every criterion
+6. If SHIP or SHIP_WITH_HUMAN_REVIEW: **Verification Gate** collects file:line evidence for every criterion
 7. Task complete with full audit trail
 
 ### Complementary Mode (with Superpowers)
@@ -148,7 +148,7 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 └── archive/                 # Archived artifacts from previous tasks
 ```
 
-**Note:** Concurrent Claude Code sessions in the same project directory are not supported. Each session writes to the same `.harnessed/` directory without locking — artifacts from one session may overwrite another's.
+**Note:** Concurrent Claude Code sessions in the same project directory are not fully supported. Harnessed uses an advisory lock (`.harnessed/.lock`) to detect and warn about concurrent sessions, but this is best-effort only — artifacts from one session may still overwrite another's.
 
 ## Cost
 
@@ -183,7 +183,7 @@ Each QA round spawns one evaluator subagent. A typical task uses 1-2 QA rounds. 
 - Add `.harnessed/` to your project's `.gitignore`
 
 **Concurrent sessions:**
-- Running multiple Claude Code sessions on the same project is not supported — sessions share `.harnessed/` without locking
+- Running multiple Claude Code sessions on the same project is not fully supported — Harnessed warns via advisory lock but cannot guarantee artifact isolation
 
 ## License
 

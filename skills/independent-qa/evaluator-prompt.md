@@ -110,7 +110,7 @@ Write your report to `.harnessed/qa-report.md` using this EXACT format:
 
 ## Overview
 - **Verification Tier:** {1, 1.5, or 2}
-- **Overall Grade:** {SHIP / ITERATE / BLOCKED}
+- **Overall Grade:** {SHIP / SHIP_WITH_HUMAN_REVIEW / ITERATE / BLOCKED}
 - **Criteria Passed:** {X}/{Y} (Y excludes criteria graded MANUAL_REVIEW_NEEDED)
 - **Critical Issues:** {count}
 
@@ -152,7 +152,7 @@ Issues not tied to specific criteria but discovered during review:
 
 ## Failure Categories
 
-Only include this section when the overall grade is ITERATE or BLOCKED. Omit entirely on SHIP.
+Only include this section when the overall grade is ITERATE or BLOCKED. Omit entirely on SHIP or SHIP_WITH_HUMAN_REVIEW.
 
 For each criterion graded FAIL or PARTIAL, emit one row in this table. Use short, reusable category names (e.g., "missing error handling", "off-by-one", "null/undefined not checked", "missing input validation", "regression in existing behavior"). The category name must be derivable from the criterion text and finding — do not invent labels unrelated to the actual failure.
 
@@ -162,7 +162,7 @@ For each criterion graded FAIL or PARTIAL, emit one row in this table. Use short
 
 {Repeat one row per FAIL or PARTIAL criterion}
 
-If the overall grade is SHIP, write: `(no failures — section omitted)`
+If the overall grade is SHIP or SHIP_WITH_HUMAN_REVIEW, write: `(no failures — section omitted)`
 
 ---
 

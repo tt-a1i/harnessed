@@ -43,13 +43,25 @@ Keep status messages to one sentence. Do not explain the Harnessed pipeline unle
 
 ## Gitignore Setup
 
-Before creating any `.harnessed/` artifacts, check if `.harnessed/` is in the project's `.gitignore`. If not, append it:
+Before creating any `.harnessed/` artifacts, check if `.harnessed/` is already in the project's `.gitignore`. Only append if absent:
 
 ```
-echo '.harnessed/' >> .gitignore
+grep -qxF '.harnessed/' .gitignore 2>/dev/null || echo '.harnessed/' >> .gitignore
 ```
 
-This is automatic and silent — do not ask the user for permission. QA artifacts should never be committed.
+This is automatic, silent, and idempotent — running multiple times will not create duplicate entries. Do not ask the user for permission. QA artifacts should never be committed.
+
+## Concurrent Session Detection
+
+Before writing any artifacts, check for an active session lock:
+
+1. If `.harnessed/.lock` exists, read its content (PID and timestamp)
+2. Check if the PID is still running: `kill -0 {PID} 2>/dev/null`
+3. If the process is alive: warn the user — "Another Harnessed session appears active (PID {PID}, started {timestamp}). Running concurrent sessions may corrupt QA artifacts. Continue anyway?" Wait for user confirmation.
+4. If the process is dead (stale lock): remove the lock file silently and proceed
+5. Write `.harnessed/.lock` with the current shell's PID (`$$`) and ISO 8601 timestamp
+
+The lock file is advisory, not mandatory — it warns but does not block. Clean up the lock file when the task completes (after verification-gate or after the user ends the task).
 
 ## Artifact Lifecycle
 

@@ -78,9 +78,9 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
    - 评估器看到：diff + 合约 + 项目上下文
    - 评估器看不到：生成器的推理过程或自我评估
    - 评估器对每条标准评分：PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
-   - 总体评级：**SHIP**（全部通过，可以完成）/ **ITERATE**（发现问题，代理修复后重跑 QA）/ **BLOCKED**（根本性问题，需要你介入）
+   - 总体评级：**SHIP**（全部通过，可以完成）/ **SHIP_WITH_HUMAN_REVIEW**（代码检查通过但部分标准需人工验证）/ **ITERATE**（发现问题，代理修复后重跑 QA）/ **BLOCKED**（根本性问题，需要你介入）
 5. 如果 ITERATE：代理修复问题，QA 重新运行（最多 3 轮）
-6. 如果 SHIP：**验证门** 收集每条标准的 file:line 证据
+6. 如果 SHIP 或 SHIP_WITH_HUMAN_REVIEW：**验证门** 收集每条标准的 file:line 证据
 7. 任务完成，附完整审计记录
 
 ### 互补模式（与 Superpowers 配合）
@@ -150,7 +150,7 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 └── archive/                 # 前次任务的归档产物
 ```
 
-**注意：** 不支持在同一项目目录下运行多个 Claude Code 会话。每个会话写入同一个 `.harnessed/` 目录，无文件锁 — 产物可能被互相覆盖。
+**注意：** 不完全支持在同一项目目录下运行多个 Claude Code 会话。Harnessed 使用咨询性锁（`.harnessed/.lock`）检测并警告并发会话，但这只是尽力检测 — 产物仍可能被互相覆盖。
 
 ## 成本
 
@@ -185,7 +185,7 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 - 将 `.harnessed/` 添加到项目的 `.gitignore`
 
 **并发会话：**
-- 不支持在同一项目运行多个 Claude Code 会话 — 会话共享 `.harnessed/` 且无文件锁
+- 不完全支持在同一项目运行多个 Claude Code 会话 — Harnessed 通过咨询性锁警告，但无法保证产物隔离
 
 ## 许可证
 

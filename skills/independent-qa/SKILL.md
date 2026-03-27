@@ -136,15 +136,16 @@ If the report is missing, empty, or malformed: retry the evaluation once with th
 
 Read `.harnessed/qa-report.md` after the evaluator completes.
 
-**If overall grade is SHIP:**
+**If overall grade is SHIP or SHIP_WITH_HUMAN_REVIEW:**
 - Proceed to `harnessed:verification-gate`
 - Present a brief summary to the user
+- If SHIP_WITH_HUMAN_REVIEW: note which criteria need human review
 
 **If overall grade is ITERATE:**
 - Read the specific failures and fix them
 - After fixing, re-invoke this skill (go back to Step 1)
 - Read the iteration count from `.harnessed/qa-state.md`. Maximum 3 iterations.
-- On iteration 3 with no SHIP: escalate to user with full QA history
+- On iteration 3 with no SHIP or SHIP_WITH_HUMAN_REVIEW: escalate to user with full QA history
 
 **If overall grade is BLOCKED:**
 - Do NOT attempt to fix
@@ -168,17 +169,19 @@ The file uses a markdown table: `| Category | Count | Last Seen | Example |` —
 
 **Decay rule:** When reading the file, remove any row whose Last Seen date is more than 90 days ago AND whose Count is 1 (one-off failures that never recurred are noise, not patterns). Rows with Count ≥ 2 are kept regardless of age.
 
-Skip this step on SHIP results. This file is project-level learning and is NOT archived when a new task begins.
+**Cap rule:** If the table exceeds 20 rows after adding new entries, reduce it to 20 rows in this order: (1) first remove expired singletons (Count=1, Last Seen >90 days — already handled by the decay rule above); (2) then remove remaining Count=1 rows, oldest Last Seen first; (3) only if still over 20, remove lowest-count rows (breaking ties by oldest Last Seen). This prioritizes keeping proven patterns (Count ≥ 2) over recent one-offs.
+
+Skip this step on SHIP or SHIP_WITH_HUMAN_REVIEW results. This file is project-level learning and is NOT archived when a new task begins.
 
 ### Step 6: Write QA Summary
 
-After a SHIP result, append a brief log entry:
+After a SHIP or SHIP_WITH_HUMAN_REVIEW result, append a brief log entry:
 
 ```
 ## QA Summary
 - Tier: {1, 1.5, or 2}
 - Iterations: {count}
-- Final grade: SHIP
+- Final grade: {SHIP or SHIP_WITH_HUMAN_REVIEW}
 - Key findings fixed: {brief list of issues caught and fixed during iterations, if any}
 ```
 

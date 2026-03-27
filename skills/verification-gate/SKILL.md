@@ -18,7 +18,7 @@ You may NOT use the words "done", "complete", "finished", "implemented", or any 
 
 ## When This Skill Activates
 
-- After independent-qa returns SHIP
+- After independent-qa returns SHIP or SHIP_WITH_HUMAN_REVIEW
 - Before responding with ANY completion signal to the user
 - For micro tasks: this is the ONLY Harnessed gate (no contract or QA needed)
 
@@ -53,8 +53,13 @@ For EACH criterion, provide ONE of the following evidence types:
 | **Code citation** | `file.ext:42` — "{code snippet}" | Implementation exists at this location |
 | **Test citation** | `test_file.ext:15` — test name: "{name}" | A test covers this criterion |
 | **Command output** | `$ command` → `{output}` | Running a command proves it works |
-| **QA confirmation** | "QA Report: criterion PASS with evidence at file:line" | QA already verified this |
 | **HTTP smoke test** | `$ curl ...` → `{status + body}` | Tier 1.5: QA ran HTTP tests against dev server |
+
+**Supplementary evidence (cannot be used alone):**
+
+| Evidence Type | Format | When to Use |
+|--------------|--------|-------------|
+| **QA confirmation** | "QA Report: criterion PASS with evidence at file:line" | Only as supporting evidence alongside a primary type above. The gate must independently verify — not just repeat the QA report. |
 
 **Rules for evidence:**
 - Each citation must be CURRENT — verify the file and line STILL contain what you claim
@@ -68,7 +73,7 @@ After collecting evidence for all criteria, verify:
 
 - [ ] Every criterion has at least one evidence item (except MANUAL_REVIEW_NEEDED — see below)
 - [ ] No criterion is marked with "will be done later" or "TODO"
-- [ ] QA report (if exists) shows SHIP status
+- [ ] QA report (if exists) shows SHIP or SHIP_WITH_HUMAN_REVIEW status
 - [ ] No unresolved ITERATE or BLOCKED findings remain
 
 **MANUAL_REVIEW_NEEDED criteria:** If the QA report marked a criterion as MANUAL_REVIEW_NEEDED, you cannot produce automated evidence for it. Do NOT block completion. Instead, list these criteria in the verification summary under a `## Pending Human Review` section with the evaluator's notes. The user will verify these manually.
@@ -85,7 +90,7 @@ Write to `.harnessed/verification-summary.md`:
 ## Task
 {task description}
 
-## Status: VERIFIED
+## Status: VERIFIED | VERIFIED_PENDING_HUMAN_REVIEW
 
 ## Evidence
 
@@ -100,7 +105,7 @@ Write to `.harnessed/verification-summary.md`:
 
 ## QA History
 - Rounds: {number of QA iterations}
-- Final grade: SHIP
+- Final grade: {SHIP or SHIP_WITH_HUMAN_REVIEW}
 - Issues fixed during QA: {brief list, or "None"}
 
 ## Files Changed
@@ -111,11 +116,26 @@ Write to `.harnessed/verification-summary.md`:
 
 After writing the summary, present a brief completion message to the user:
 
+For **SHIP** (fully verified):
 ```
 Task complete. {one-line summary of what was built/fixed}.
 
 Verified against {N} acceptance criteria. QA passed in {M} round(s).
 {If issues were caught and fixed: "QA caught {X} issues that were fixed before completion."}
+
+Full verification: .harnessed/verification-summary.md
+```
+
+For **SHIP_WITH_HUMAN_REVIEW** (automated checks passed, human review pending):
+```
+Task code-complete. {one-line summary of what was built/fixed}.
+
+Verified {N-K} of {N} acceptance criteria automatically. QA passed in {M} round(s).
+{K} criteria require human review — see details below.
+{If issues were caught and fixed: "QA caught {X} issues that were fixed before completion."}
+
+Pending human review:
+- {criterion}: {evaluator's note}
 
 Full verification: .harnessed/verification-summary.md
 ```
