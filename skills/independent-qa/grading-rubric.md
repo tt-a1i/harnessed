@@ -8,11 +8,15 @@ The criterion is fully satisfied. Evidence:
 - For Tier 2: execution confirms the behavior works
 - No edge cases are unhandled within the criterion's scope
 
+> **Example:** Criterion: "API returns 404 for unknown IDs." Evidence: `routes/users.ts:45` — `if (!user) return res.status(404).json({error: 'Not found'})`. The handler checks for null result and returns the correct status code with appropriate error body.
+
 ### PARTIAL
 The criterion is partially satisfied. Evidence:
 - Core behavior works but edge cases are unhandled
 - Implementation exists but has a minor correctness issue
 - Feature works in most cases but fails under specific conditions
+
+> **Example:** Criterion: "Search is case-insensitive." Evidence: `search.ts:12` — `query.toLowerCase()` is applied to the search term, but the database column is not indexed with a case-insensitive collation. Searching works for ASCII characters but fails for Unicode (e.g., searching "cafe" does not match "CAFE").
 
 PARTIAL counts as a failure for grading purposes but may be fixable in one iteration.
 
@@ -23,6 +27,8 @@ The criterion is not satisfied. Evidence:
 - Implementation exists but introduces a regression
 - For Tier 2: execution demonstrates the feature does not work
 
+> **Example:** Criterion: "Passwords are hashed before storage." Evidence: `models/user.ts:23` — `this.password = password`. The bcrypt import exists on line 2 but is never called. Passwords are stored in plaintext.
+
 ### MANUAL_REVIEW_NEEDED
 The criterion cannot be assessed by automated means. Use when:
 - Verification requires visual inspection (design fidelity, layout aesthetics)
@@ -31,6 +37,8 @@ The criterion cannot be assessed by automated means. Use when:
 - The criterion is inherently subjective (UX feel, perceived performance)
 
 MANUAL_REVIEW_NEEDED is excluded from the pass/fail count. It does NOT block SHIP — but the overall grade summary must list all MANUAL_REVIEW_NEEDED criteria so the user knows what still needs human verification.
+
+> **Example:** Criterion: "Dark mode color scheme is visually consistent." The evaluator can verify that CSS variables change, but cannot assess whether the resulting visual appearance is aesthetically coherent or readable. Requires human visual inspection.
 
 ---
 

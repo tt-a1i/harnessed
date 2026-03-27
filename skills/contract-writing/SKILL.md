@@ -98,6 +98,17 @@ If the project has no test infrastructure, the contract should note this under a
 6. **Write to `.harnessed/contract.md`**
 7. **Present the contract to the user** — show a brief summary of the criteria. For **Large** tasks, wait for explicit user approval before coding. For **Standard** tasks, present the contract and proceed to coding unless the user objects.
 
+## Requirement Changes
+
+If the user modifies requirements after the contract is written:
+
+1. Update `.harnessed/contract.md` to reflect the new requirements
+2. If already coding: assess whether existing code satisfies the updated criteria
+3. If QA has already run: the next QA round evaluates against the updated contract
+4. If the change fundamentally alters the task: archive the current contract and start fresh
+
+Never run QA against a stale contract.
+
 ## Anti-Rationalization
 
 | Your Thought | Why It's Wrong | What To Do |

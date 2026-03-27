@@ -170,6 +170,8 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
 | "Let me just re-run QA, maybe it'll pass this time" | Re-running without fixes is hoping for randomness. The evaluator will find the same issues. | Fix the issues first, then re-run. |
 | "I already ran QA on similar code before" | Previous QA verified previous code. Every diff is evaluated independently against the current contract. | Dispatch a fresh evaluator. Prior QA results do not transfer. |
 | "I know the code works, I just need QA to confirm" | If you expect confirmation, you are not seeking independent evaluation — you are seeking validation. That mindset causes you to dismiss legitimate findings. | Dispatch the evaluator expecting to learn something. |
+| "The user seems impatient, I should skip QA" | User impatience is about communication, not quality. A user who waits 60 extra seconds for verified code is happier than one who gets broken code instantly. | Run QA. Send a status update: "Running independent QA evaluation." |
+| "This is my second attempt, I already know what was wrong" | Knowing the previous failure does not guarantee the fix is correct or regression-free. The fresh evaluator exists because your confidence is not evidence. | Dispatch a fresh evaluator with the full latest diff. Do not scope down the evaluation. |
 
 <HARD-GATE>
 INDEPENDENT QA IS MANDATORY FOR ALL STANDARD AND LARGE TASKS.

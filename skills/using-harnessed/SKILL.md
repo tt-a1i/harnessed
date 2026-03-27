@@ -35,8 +35,8 @@ Keep status messages to one sentence. Do not explain the Harnessed pipeline unle
 | Task Size | Indicators | Pipeline |
 |-----------|-----------|----------|
 | **Micro** | Single-line fix, typo, config value change, comment edit | Skip contract + QA. Use verification-gate only. |
-| **Standard** | New function, bug fix, UI component, API endpoint | Full pipeline: contract → code → QA → gate |
-| **Large** | New feature, multi-file refactor, architecture change | Full pipeline with explicit user review at contract stage |
+| **Standard** | New function, bug fix, UI component, API endpoint, single-function refactor | Full pipeline: contract → code → QA → gate |
+| **Large** | New feature, multi-file refactor (>3 files or public interface changes), architecture change | Full pipeline with explicit user review at contract stage |
 
 **When in doubt, treat as Standard.** It is always safer to over-verify than under-verify.
 
@@ -62,6 +62,7 @@ Every rationalization below has been observed in production and leads to bugs sh
 | "The user didn't ask for QA" | The user installed Harnessed. That IS asking for QA. | Run QA. |
 | "I'll QA everything at the end" | Compound bugs are exponentially harder to find and fix than incremental ones. | QA after each coding round, not at the end. |
 | "The evaluator was too strict last time" | Strictness is the point. If criteria are wrong, fix the criteria. Never weaken the evaluator. | Adjust the contract, not the evaluator's standards. |
+| "This project has no tests, so QA can't verify much" | Tier 1 code review alone catches logic errors, off-by-one bugs, missing error handling, and regressions. Independence is the value, not execution. | Run QA at Tier 1. Code review is still more reliable than self-assessment. |
 
 <HARD-GATE>
 NON-NEGOTIABLE. "It's fine this one time" is NEVER true. If you think any thought from the table above, STOP and follow the correct procedure.
