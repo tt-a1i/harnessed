@@ -29,13 +29,14 @@ You may NOT use the words "done", "complete", "finished", "implemented", or any 
 
 Before collecting evidence, verify the code has not changed since QA ran:
 
-1. If the project is not a git repository: skip this step (staleness cannot be tracked without git)
-2. If `.harnessed/qa-state.md` does not exist (micro task or first run): skip this step
-3. Read `.harnessed/qa-state.md` and extract the `head_commit` field
+1. If the project is not a git repository: skip the code staleness check (steps 3-5) but still perform the contract check (step 6)
+2. If `.harnessed/qa-state.md` does not exist (micro task or first run): skip this step entirely
+3. Read `.harnessed/qa-state.md` and extract the `head_commit` and `contract_hash` fields
 4. Run `git rev-parse HEAD` to get the current commit
-5. If they differ: code has changed since QA — re-run `harnessed:independent-qa` before proceeding
+5. If `head_commit` differs: code has changed since QA — re-run `harnessed:independent-qa` before proceeding
+6. If `contract_hash` is present: hash the current `.harnessed/contract.md` and compare. If they differ, the contract was modified after QA — re-run `harnessed:independent-qa` before proceeding
 
-Stale QA evidence is not evidence.
+Stale QA evidence is not evidence. Tampered contracts are not contracts.
 
 ### Step 1: Locate Criteria Source
 

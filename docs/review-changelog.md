@@ -1,6 +1,6 @@
 # Review Changelog
 
-127 improvements across 14 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
+138 improvements across 16 review rounds. Each entry documents an issue found and fixed during iterative subagent-driven review.
 
 ## Why We Did This
 
@@ -38,6 +38,8 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 12 | 验证门与文档同步 | 验证门流程和文档是否一致？ |
 | 13 | 边界情况与引用同步 | 非 Git、空 diff、用户覆写等边界是否处理？ |
 | 14 | 会话钩子与状态整合 | 钩子可靠性和迭代状态是否健壮？ |
+| 15 | 评估器模板与评分 | Tier 1.5 输出结构和评分优先级是否完整？ |
+| 16 | 防篡改与文档同步 | QA 轮次间的合约完整性和文档一致性是否保障？ |
 
 每一轮都由独立的子代理执行，不携带上一轮的上下文。这和 Harnessed 对用户代码做的事情完全一样：独立评估，每一轮都是新鲜的视角。
 
@@ -247,6 +249,27 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | 126 | Superpowers detection logic scattered across multiple files | Consolidated Superpowers detection into canonical 3-step algorithm in spec |
 | 127 | Roadmap items implemented but not marked | Marked 3 roadmap items as PARTIALLY IMPLEMENTED |
 
+## Round 15: Evaluator Template, Grading & Reference Sync
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 128 | Evaluator output template missing Tier 1.5 in Verification Tier field | Added Tier 1.5 as a valid value in the Verification Tier field |
+| 129 | Evaluator output template has no section for Tier 1.5 execution results | Added HTTP Smoke Tests subsection for Tier 1.5 execution results |
+| 130 | Evaluator output template {Y} in Criteria Passed ambiguous (could include MANUAL_REVIEW_NEEDED) | Clarified: {Y} excludes criteria graded MANUAL_REVIEW_NEEDED |
+| 131 | Grading rubric lacks severity precedence rule (BLOCKED vs ITERATE vs SHIP ordering) | Added rule 6: severity precedence BLOCKED > ITERATE > SHIP |
+| 132 | reference.md Tier 1 described as "Static analysis" (wrong) and listed phantom Tier 3 | Fixed Tier 1 description to "Code review"; removed phantom Tier 3 |
+| 133 | Both READMEs: SHIP/ITERATE/BLOCKED grades undefined inline; failure-patterns.md absent from EN artifact tree; ZH README missing English link | Added inline SHIP/ITERATE/BLOCKED definitions; added failure-patterns.md to EN artifact tree; added English README link to ZH README |
+
+## Round 16: Tamper Detection, Stale References & Spec Sync
+
+| # | Issue | Fix |
+|---|-------|-----|
+| 134 | independent-qa has no tamper detection between QA rounds (contract could be silently modified) | Added contract_hash field to qa-state.md; independent-qa now records and verifies hash on each round |
+| 135 | independent-qa still contains two stale "1 or 2" tier references (should be "1, 1.5, or 2") | Fixed both remaining stale references to reflect the three-tier system |
+| 136 | contract-writing MUST NOT list contains duplicate subjective quality entries | Merged duplicate subjective entries into a single consolidated rule |
+| 137 | README.md Tier 2 description incorrectly included "dev servers" (Tier 1.5 only) | Fixed Tier 2 description: removed "dev servers", now correctly scoped to Tier 1.5 |
+| 138 | spec.md missing grading precedence rule, iteration algorithm not synced to 6-step, qa-state.md absent from artifact lifecycle | Added grading precedence rule; synced iteration algorithm to 6-step with contract_hash; added qa-state.md to artifact lifecycle section |
+
 ---
 
 ## Summary by Category
@@ -263,4 +286,6 @@ Harnessed 的核心主张是：AI 不能可靠地评估自己的工作。这个�
 | Contract/grading system | 13 |
 | Competitive / positioning | 8 |
 | Verification hardening | 4 |
-| **Total** | **127** |
+| Evaluator template & grading | 6 |
+| Tamper detection & spec sync | 5 |
+| **Total** | **138** |
