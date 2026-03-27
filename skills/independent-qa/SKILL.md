@@ -31,20 +31,24 @@ If no contract/spec exists: STOP. Invoke `harnessed:contract-writing` first. Do 
 
 Check the project for available verification infrastructure:
 
-**Tier 2 indicators (execution verification):**
+**Test suite indicators:**
 - `package.json` with `"test"` script → can run `npm test`
 - `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` → can run `pytest`
 - `Makefile` with `test` target → can run `make test`
 - `go.mod` present → can run `go test ./...`
-- Dev server running (check common ports: 3000, 5173, 8000, 8080). Use `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` to detect running servers. On Linux where `lsof` is unavailable, use `ss -tlnp 2>/dev/null | grep -E ':(3000|5173|8000|8080)'` instead.
 - `playwright.config.*` or `cypress.config.*` → can run e2e tests
 
-**If ANY Tier 2 indicator is found:** use Tier 2 (code review + execution)
-**If none found:** use Tier 1 (code review only)
+**Dev server indicators:**
+- Dev server running (check common ports: 3000, 5173, 8000, 8080). Use `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` to detect running servers. On Linux where `lsof` is unavailable, use `ss -tlnp 2>/dev/null | grep -E ':(3000|5173|8000|8080)'` instead.
+
+**Tier assignment:**
+- **Tier 2** (code review + full execution): any test suite indicator found
+- **Tier 1.5** (code review + HTTP smoke tests): no test suite, but dev server is running — evaluator uses `curl`/HTTP requests to verify behavior against the live server
+- **Tier 1** (code review only): no test suite and no dev server
 
 Record which tier is active — include it in the evaluator prompt.
 
-### Step 2b: Pre-Flight Checks (Tier 2 only)
+### Step 2b: Pre-Flight Checks (Tier 1.5 and Tier 2)
 
 Before dispatching the expensive evaluator subagent, run available tool checks at zero LLM cost:
 
@@ -102,7 +106,7 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
    - `{CONTRACT}` — the full contract/spec content
    - `{DIFF}` — the `git diff HEAD` output
    - `{STACK}` — project stack description (language, framework, package manager, test runner; use "unknown" for undetectable components)
-   - `{TIER}` — 1 or 2
+   - `{TIER}` — 1, 1.5, or 2
    - `{MODE}` — "all-criteria" (default; reserved for future per-criterion evaluation)
    - `{VERIFICATION_COMMANDS}` — commands from contract
    - `{GRADING_RUBRIC}` — content from `grading-rubric.md`
@@ -144,6 +148,21 @@ Read `.harnessed/qa-report.md` after the evaluator completes.
 - Present the full QA report to the user
 - Explain what the evaluator found and why it's blocking
 - Wait for user direction
+
+### Step 5b: Record Failure Patterns
+
+After a QA result of ITERATE or BLOCKED, update `.harnessed/failure-patterns.md` to help future contract-writing catch recurring issues:
+
+1. Read `.harnessed/failure-patterns.md` if it exists (create it if not)
+2. For each FAIL or PARTIAL criterion in the QA report, extract a short failure category (e.g., "missing error handling", "off-by-one", "null/undefined not checked", "missing input validation", "regression in existing behavior")
+3. If the category already exists in the file, increment its count and update the last-seen date
+4. If the category is new, add a row with count 1
+
+The file uses a markdown table: `| Category | Count | Last Seen | Example |` — one row per failure pattern. Include a concrete example from the current QA report for new entries.
+
+**Decay rule:** When reading the file, remove any row whose Last Seen date is more than 90 days ago AND whose Count is 1 (one-off failures that never recurred are noise, not patterns). Rows with Count ≥ 2 are kept regardless of age.
+
+Skip this step on SHIP results. This file is project-level learning and is NOT archived when a new task begins.
 
 ### Step 6: Write QA Summary
 

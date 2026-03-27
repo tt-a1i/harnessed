@@ -9,7 +9,7 @@ When constructing the evaluator prompt:
 1. Paste the FULL contract content — do not summarize or paraphrase
 2. Paste the FULL git diff — do not truncate unless it exceeds context limits
 3. For `{STACK}`, include: language, framework, package manager, test runner. If any component is unknown, write "unknown" rather than omitting.
-4. For `{TIER}`, use "1" or "2" only
+4. For `{TIER}`, use "1", "1.5", or "2"
 5. For `{MODE}`, use "all-criteria" (default). Reserved for future per-criterion evaluation.
 6. For `{VERIFICATION_COMMANDS}`, paste the commands section from the contract
 7. For `{GRADING_RUBRIC}`, paste the full content of `grading-rubric.md`
@@ -62,6 +62,19 @@ For EACH criterion in the contract:
 4. Cite specific `file:line` for your evidence
 5. Grade: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED
    - MANUAL_REVIEW_NEEDED: criterion requires human verification (e.g., visual design, UX feel, browser-specific behavior)
+
+### Tier 1.5: HTTP Smoke Tests (if tier is 1.5)
+
+In addition to Tier 1, when a dev server is available but no test suite exists:
+
+1. Use `curl` to send HTTP requests to relevant endpoints based on the contract criteria
+2. Verify response status codes (200, 201, 400, 404, etc.) match expected behavior
+3. Verify response bodies contain expected data structures or content
+4. Test error cases: invalid inputs, missing parameters, non-existent resources
+5. If the contract includes UI criteria, verify the page HTML contains expected elements (forms, buttons, text content)
+6. Record all commands and their outputs as evidence
+
+Tier 1.5 is weaker than Tier 2 (cannot test complex interactions, state transitions, or client-side JS behavior) but significantly stronger than Tier 1 alone.
 
 ### Tier 2: Execution Verification (if tier is 2)
 

@@ -49,7 +49,7 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 3. If `.harnessed/qa-state.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-state.md`
 4. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
 
-Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist.
+Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist. Do NOT archive `.harnessed/failure-patterns.md` — it is persistent project-level learning that accumulates across tasks.
 
 **New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user: "Is this a new task or a continuation of the current one?"
 

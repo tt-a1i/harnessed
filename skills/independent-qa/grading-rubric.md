@@ -5,7 +5,7 @@
 ### PASS
 The criterion is fully satisfied. Evidence:
 - Code implementing this criterion exists and is correct
-- For Tier 2: execution confirms the behavior works
+- For Tier 1.5/2: execution confirms the behavior works
 - No edge cases are unhandled within the criterion's scope
 
 > **Example:** Criterion: "API returns 404 for unknown IDs." Evidence: `routes/users.ts:45` — `if (!user) return res.status(404).json({error: 'Not found'})`. The handler checks for null result and returns the correct status code with appropriate error body.
@@ -25,7 +25,7 @@ The criterion is not satisfied. Evidence:
 - No implementation found for this criterion
 - Implementation exists but produces incorrect results
 - Implementation exists but introduces a regression
-- For Tier 2: execution demonstrates the feature does not work
+- For Tier 1.5/2: execution demonstrates the feature does not work
 
 > **Example:** Criterion: "Passwords are hashed before storage." Evidence: `models/user.ts:23` — `this.password = password`. The bcrypt import exists on line 2 but is never called. Passwords are stored in plaintext.
 
@@ -73,7 +73,7 @@ All of the following must be true:
 - Every criterion graded PASS, FAIL, or PARTIAL is PASS (no FAIL, no PARTIAL). Criteria graded MANUAL_REVIEW_NEEDED are excluded from this count.
 - Zero critical additional findings
 - Zero major additional findings that affect core functionality
-- For Tier 2: test suite passes, manual verification confirms behavior
+- For Tier 1.5: HTTP smoke tests confirm behavior; for Tier 2: test suite passes, manual verification confirms behavior
 
 **SHIP is the only grade that allows proceeding to verification-gate.**
 
@@ -81,7 +81,7 @@ All of the following must be true:
 Any of the following:
 - One or more criteria are FAIL or PARTIAL
 - Major additional findings exist
-- For Tier 2: test suite has new failures (not pre-existing)
+- For Tier 1.5: HTTP smoke tests reveal failures; for Tier 2: test suite has new failures (not pre-existing)
 
 ITERATE means: the issues are fixable without re-architecture. The implementer should fix the specific issues listed and re-submit for QA.
 

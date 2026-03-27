@@ -66,10 +66,12 @@ If the project has no test infrastructure, the contract should note this under a
 
 1. **Read the user's request** carefully. Identify explicit and implicit requirements.
 2. **Examine the codebase** — understand existing patterns, test infrastructure, and constraints.
-3. **Draft the contract** — write criteria covering: functional requirements, edge cases, and regression safety.
+2b. **Check failure patterns** — if `.harnessed/failure-patterns.md` exists, read it. Only note patterns with Count ≥ 2 that are relevant to the current task's domain (e.g., "missing input validation" is relevant for API work but not for CSS refactoring). Ignore patterns unrelated to the task — the goal is targeted prevention, not a checklist of every past mistake.
+3. **Draft the contract** — write criteria covering: functional requirements, edge cases, regression safety, and relevant failure patterns from step 2b.
 4. **Add verification commands** — map each criterion to how it can be checked.
 5. **Define out-of-scope** — explicitly exclude things the user did NOT ask for.
 6. **Write to `.harnessed/contract.md`**
+6b. **Coverage verification** — re-read the user's original request and extract every distinct requirement (explicit and strongly implied). Map each to at least one contract criterion. If any requirement has no matching criterion, add it now. This step is mandatory, not optional reflection.
 7. **Present the contract to the user** — show a brief summary of the criteria. For **Large** tasks, wait for explicit user approval before coding. For **Standard** tasks, present the contract and proceed to coding unless the user objects.
 
 ## Requirement Changes
