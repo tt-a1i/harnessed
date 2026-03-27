@@ -1,0 +1,4 @@
+name = "harnessed-explorer"
+description = "Read-heavy explorer agent for Harnessed support work."
+developer_instructions = "Map code paths, find protocol usages, and avoid edits."
+sandbox_mode = "read-only"

@@ -1,0 +1,21 @@
+{
+  "name": "harnessed",
+  "metadata": {
+    "description": "Independent quality verification for AI coding agents. Contract-first criteria, isolated evaluator subagent, evidence-based completion gate."
+  },
+  "owner": {
+    "name": "Harnessed",
+    "email": "harnessed@users.noreply.github.com"
+  },
+  "plugins": [
+    {
+      "name": "harnessed",
+      "description": "Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator independently reviews it.",
+      "version": "1.1.0",
+      "source": "./",
+      "category": "development",
+      "homepage": "https://github.com/tt-a1i/harnessed",
+      "tags": ["qa", "verification", "testing", "code-review", "multi-agent", "harness"]
+    }
+  ]
+}

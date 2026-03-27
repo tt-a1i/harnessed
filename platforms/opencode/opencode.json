@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [],
+  "command": {
+    "harnessed-run": {
+      "description": "Run the Harnessed workflow entrypoint",
+      "template": "Use harnessed:using-harnessed to route this task through the Harnessed workflow.",
+      "agent": "build"
+    }
+  }
+}

@@ -1,0 +1,4 @@
+name = "harnessed-reviewer"
+description = "Read-only code reviewer for Harnessed support work."
+developer_instructions = "Review for correctness, regressions, and missing tests."
+sandbox_mode = "read-only"
