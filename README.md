@@ -24,25 +24,37 @@ Micro:          Task → Code → Gate → Done
 
 ## Installation
 
-### Claude Code
+### Claude Code (Plugin Marketplace — recommended)
+
+```bash
+# Register the Harnessed marketplace (one-time)
+claude plugin marketplace add tt-a1i/harnessed
+
+# Install the plugin
+claude plugin install harnessed
+```
+
+Updates are automatic — Claude Code syncs plugins on startup.
+
+### Manual Installation (alternative)
 
 ```bash
 # Clone the repository
 git clone https://github.com/tt-a1i/harnessed.git
 
 # Option A: Install as a project plugin (project-local)
-# Copy into your project root — Claude Code discovers plugins via .claude-plugin/
 cp -r harnessed/ your-project/harnessed/
 
 # Option B: Install globally for all projects
 cp -r harnessed/ ~/.claude/plugins/harnessed/
 ```
 
-After installation:
-1. Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there
-2. Verify: run `bash harnessed/hooks/session-start` — you should see JSON output with the meta-skill content
-
 > If you downloaded a zip instead of cloning, run `chmod +x harnessed/hooks/session-start`.
+
+### After Installation
+
+1. Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there
+2. Verify: start a new Claude Code session — you should see Harnessed respond with "I'll draft acceptance criteria before coding" on your first coding task
 
 ### With Superpowers
 

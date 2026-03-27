@@ -24,25 +24,37 @@ Harnessed 为 AI 编程工作流添加独立 QA 循环：
 
 ## 安装
 
-### Claude Code
+### Claude Code（插件市场 — 推荐）
+
+```bash
+# 注册 Harnessed 市场（一次性）
+claude plugin marketplace add tt-a1i/harnessed
+
+# 安装插件
+claude plugin install harnessed
+```
+
+更新自动完成 — Claude Code 启动时自动同步插件。
+
+### 手动安装（备选）
 
 ```bash
 # 克隆仓库
 git clone https://github.com/tt-a1i/harnessed.git
 
 # 方式 A：作为项目插件安装（仅当前项目）
-# 复制到项目根目录 — Claude Code 通过 .claude-plugin/ 发现插件
 cp -r harnessed/ your-project/harnessed/
 
 # 方式 B：全局安装（所有项目可用）
 cp -r harnessed/ ~/.claude/plugins/harnessed/
 ```
 
-安装后：
-1. 将 `.harnessed/` 添加到项目的 `.gitignore` — Harnessed 会在此写入 QA 产物
-2. 验证安装：运行 `bash harnessed/hooks/session-start` — 应看到包含元技能内容的 JSON 输出
-
 > 如果下载的是 zip 而非 git clone，请运行 `chmod +x harnessed/hooks/session-start`。
+
+### 安装后
+
+1. 将 `.harnessed/` 添加到项目的 `.gitignore` — Harnessed 会在此写入 QA 产物
+2. 验证：启动新的 Claude Code 会话 — 第一次编码任务时应看到 Harnessed 提示"I'll draft acceptance criteria before coding"
 
 ### 与 Superpowers 配合使用
 
