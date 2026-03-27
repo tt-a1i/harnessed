@@ -38,4 +38,13 @@ This is the single source of truth for the Harnessed contract format. All produc
 
 ## Complementary Mode
 
-When synthesizing a contract from Superpowers specs, the output must follow this exact format. The `## Verification Commands` section should be synthesized from the spec's testing guidance or inferred from the project's test infrastructure (e.g., if the project uses pytest, generate `pytest -k "relevant_test"` commands).
+When synthesizing a contract from Superpowers specs, the output must follow this exact format. Additional synthesis rules:
+
+- If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Do not bundle multiple requirements into a single checkbox.
+- The normalized contract MUST follow the exact format defined above — no ad-hoc sections or alternative layouts.
+- Write the normalized contract to `.harnessed/contract.md` so verification-gate reads from the same source.
+- Include a `## Verification Commands` section synthesized from the spec's testing guidance or inferred from the project's test infrastructure (e.g., if the project uses pytest, generate `pytest -k "relevant_test"` commands).
+
+## Failure Patterns
+
+Before writing or synthesizing a contract, check `.harnessed/failure-patterns.md` (if it exists) for recurring failure categories relevant to the task. Incorporate any applicable patterns as Regression or Edge Case criteria to avoid repeat failures.

@@ -17,6 +17,7 @@ Harnessed ensures that code you write is independently verified before being dec
 
 - **Superpowers detected → Complementary Mode** — SKIP `harnessed:contract-writing`; use Superpowers specs as acceptance criteria.
 - **Superpowers not detected → Standalone Mode** — USE `harnessed:contract-writing` before any coding task.
+- **Superpowers detected but no specs available** → Fall back to Standalone Mode. This can happen if Superpowers is installed but the SessionStart hook failed or no planning specs exist yet. If the `superpowers` directory exists but `docs/superpowers/specs/` is empty or missing, treat as Standalone.
 
 Both modes USE `harnessed:independent-qa` after each coding round and `harnessed:verification-gate` before completion.
 
@@ -67,6 +68,8 @@ Every rationalization below has been observed in production and leads to bugs sh
 
 <HARD-GATE>
 NON-NEGOTIABLE. "It's fine this one time" is NEVER true. If you think any thought from the table above, STOP and follow the correct procedure.
+
+**User override:** HARD-GATEs prevent agent rationalization, not explicit user instructions. If the user directly requests "skip QA for this task" or "treat this as micro", respect it — the user has authority over their workflow. But never skip on your own initiative.
 </HARD-GATE>
 
 ## Quick Reference

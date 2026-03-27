@@ -86,7 +86,7 @@ Collect the following — this is ALL the evaluator will see:
 
 The evaluator must judge the CODE, not your INTENT.
 
-**If `git diff` produces no output:** STOP. Do not dispatch the evaluator. Inform the user that there are no code changes to evaluate. If changes were already committed, suggest using `git diff HEAD~1` to diff against the previous commit.
+**If `git diff` produces no output:** STOP. Do not dispatch the evaluator. Inform the user that there are no code changes to evaluate. Offer: "If changes were already committed, I can evaluate the last commit using `git diff HEAD~1`. Would you like me to do that?" If the user agrees, use `git diff HEAD~1` as the diff source and proceed normally.
 
 **If the project is not a git repository:** Collect changes by listing all files created or modified during this session. Provide full file contents to the evaluator in place of the diff, with a note: "No git repository. Full file contents provided." The evaluator should review these against the contract criteria.
 

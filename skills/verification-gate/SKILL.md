@@ -29,10 +29,11 @@ You may NOT use the words "done", "complete", "finished", "implemented", or any 
 
 Before collecting evidence, verify the code has not changed since QA ran:
 
-1. Read `.harnessed/qa-state.md` and extract the `head_commit` field
-2. Run `git rev-parse HEAD` to get the current commit
-3. If they differ: code has changed since QA — re-run `harnessed:independent-qa` before proceeding
-4. If qa-state.md does not exist (micro task): skip this step
+1. If the project is not a git repository: skip this step (staleness cannot be tracked without git)
+2. If `.harnessed/qa-state.md` does not exist (micro task or first run): skip this step
+3. Read `.harnessed/qa-state.md` and extract the `head_commit` field
+4. Run `git rev-parse HEAD` to get the current commit
+5. If they differ: code has changed since QA — re-run `harnessed:independent-qa` before proceeding
 
 Stale QA evidence is not evidence.
 
