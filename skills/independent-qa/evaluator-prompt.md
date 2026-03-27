@@ -150,6 +150,20 @@ Issues not tied to specific criteria but discovered during review:
 ### Manual Verification
 - {What was checked and what was observed}
 
+## Failure Categories
+
+Only include this section when the overall grade is ITERATE or BLOCKED. Omit entirely on SHIP.
+
+For each criterion graded FAIL or PARTIAL, emit one row in this table. Use short, reusable category names (e.g., "missing error handling", "off-by-one", "null/undefined not checked", "missing input validation", "regression in existing behavior"). The category name must be derivable from the criterion text and finding — do not invent labels unrelated to the actual failure.
+
+| Category | Criterion | Finding Summary |
+|----------|-----------|-----------------|
+| {short failure category} | {criterion text, truncated to 60 chars} | {one-sentence summary of what failed} |
+
+{Repeat one row per FAIL or PARTIAL criterion}
+
+If the overall grade is SHIP, write: `(no failures — section omitted)`
+
 ---
 
 IMPORTANT: Template fields are MINIMUM structure, not maximum depth. Each finding must contain enough detail that a developer who has never seen the code can understand the issue and fix it from your description alone. One-word entries like "Fix this" or "Incorrect" are NOT acceptable — explain WHAT is wrong, WHERE it is, and WHY it matters.

@@ -152,14 +152,17 @@ Read `.harnessed/qa-report.md` after the evaluator completes.
 
 ### Step 5b: Record Failure Patterns
 
-After a QA result of ITERATE or BLOCKED, update `.harnessed/failure-patterns.md` to help future contract-writing catch recurring issues:
+After a QA result of ITERATE or BLOCKED, update `.harnessed/failure-patterns.md` to help future contract-writing catch recurring issues.
+
+**The evaluator — not you — determines what categories are recorded.** Read the `## Failure Categories` table from `.harnessed/qa-report.md`. If the section is absent or contains `(no failures — section omitted)`, skip this step.
 
 1. Read `.harnessed/failure-patterns.md` if it exists (create it if not)
-2. For each FAIL or PARTIAL criterion in the QA report, extract a short failure category (e.g., "missing error handling", "off-by-one", "null/undefined not checked", "missing input validation", "regression in existing behavior")
-3. If the category already exists in the file, increment its count and update the last-seen date
-4. If the category is new, add a row with count 1
+2. For each row in the evaluator's `## Failure Categories` table:
+   - Copy the **Category** value verbatim — do NOT rephrase, merge, or omit any row
+   - If the category already exists in `failure-patterns.md`, increment its count and update the last-seen date; use the evaluator's Finding Summary as the example if the existing example is blank
+   - If the category is new, add a row with count 1 and the evaluator's Finding Summary as the Example
 
-The file uses a markdown table: `| Category | Count | Last Seen | Example |` — one row per failure pattern. Include a concrete example from the current QA report for new entries.
+The file uses a markdown table: `| Category | Count | Last Seen | Example |` — one row per failure pattern.
 
 **Decay rule:** When reading the file, remove any row whose Last Seen date is more than 90 days ago AND whose Count is 1 (one-off failures that never recurred are noise, not patterns). Rows with Count ≥ 2 are kept regardless of age.
 
