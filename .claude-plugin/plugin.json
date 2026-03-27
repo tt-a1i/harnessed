@@ -1,6 +1,6 @@
 {
   "name": "harnessed",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator confirms it works.",
   "author": {
     "name": "Harnessed"
