@@ -21,33 +21,7 @@ If you have already started coding before writing a contract, STOP. Write the co
 
 ## Contract Format
 
-Write the contract to `.harnessed/contract.md` using this exact format:
-
-```markdown
-# Contract: {task title}
-
-## Task
-{One-line description of what needs to be built or fixed}
-
-## Acceptance Criteria
-
-### Functional
-- [ ] {Criterion — must be verifiable by reading code, running a command, or observing behavior}
-- [ ] {Criterion}
-
-### Edge Cases
-- [ ] {Edge case that must be handled}
-
-### Regression
-- [ ] {Existing behavior that must NOT break}
-
-## Verification Commands
-{Commands that can be run to verify criteria. One per line.}
-- `{command}` — verifies {which criterion}
-
-## Out of Scope
-- {Explicitly excluded items — things the evaluator should NOT penalize for missing}
-```
+Write the contract to `.harnessed/contract.md` using the format defined in `skills/contract-writing/contract-format.md`. The format includes: `# Contract: {title}`, `## Task`, `## Acceptance Criteria` (with Functional/Edge Cases/Regression subsections), `## Verification Commands`, and `## Out of Scope`.
 
 ## Rules for Good Criteria
 

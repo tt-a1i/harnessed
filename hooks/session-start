@@ -25,6 +25,12 @@ import sys, json
 print(json.dumps(sys.stdin.read()))
 ' 2>/dev/null || printf '%s' "$SKILL_CONTENT" | sed 's/\\/\\\\/g; s/"/\\"/g; s/\t/\\t/g; s/$/\\n/' | tr -d '\n' | sed 's/^/"/; s/$/"/')
 
+# Validate that ESCAPED is valid JSON string (non-empty, starts and ends with quote)
+if [ -z "$ESCAPED" ] || ! printf '%s' "$ESCAPED" | grep -q '^".*"$'; then
+  echo '{"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": "Harnessed plugin: failed to encode meta-skill content."}}'
+  exit 0
+fi
+
 # Output in the format expected by Claude Code or Cursor
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then
   cat <<EOF

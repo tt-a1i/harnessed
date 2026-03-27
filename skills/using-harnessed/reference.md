@@ -27,10 +27,13 @@ All Harnessed artifacts are written to `.harnessed/` in the project root:
 
 ```
 .harnessed/
-├── contract.md              # Acceptance criteria (standalone mode)
+├── contract.md              # Acceptance criteria (written in both modes)
 ├── qa-report.md             # Latest QA evaluation report
+├── qa-state.md              # Iteration count and dispatch timestamp
 └── verification-summary.md  # Evidence summary for completion
 ```
+
+**Concurrent sessions:** Running multiple Claude Code sessions on the same project is unsupported. The `.harnessed/` directory assumes a single active pipeline.
 
 Create this directory if it does not exist. These files are the communication channel between skills — they ensure that the QA subagent and verification gate operate on the same criteria without sharing your conversation context.
 

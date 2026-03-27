@@ -2,17 +2,20 @@
 
 ## Notes for the Orchestrator
 
-When constructing this prompt:
+**This section is for YOU (the orchestrating agent). Do NOT send it to the evaluator subagent.** Only send content between the BEGIN and END delimiters.
+
+When constructing the evaluator prompt:
 
 1. Paste the FULL contract content — do not summarize or paraphrase
 2. Paste the FULL git diff — do not truncate unless it exceeds context limits
-3. For `{STACK}`, include: language, framework, package manager, test runner
+3. For `{STACK}`, include: language, framework, package manager, test runner. If any component is unknown, write "unknown" rather than omitting.
 4. For `{TIER}`, use "1" or "2" only
-5. For `{VERIFICATION_COMMANDS}`, paste the commands section from the contract
-6. For `{GRADING_RUBRIC}`, paste the full content of `grading-rubric.md`
-7. Do NOT add any additional context about your implementation choices
+5. For `{MODE}`, use "all-criteria" (default). Reserved for future per-criterion evaluation.
+6. For `{VERIFICATION_COMMANDS}`, paste the commands section from the contract
+7. For `{GRADING_RUBRIC}`, paste the full content of `grading-rubric.md`
+8. Do NOT add any additional context about your implementation choices
 
-Replace all `{PLACEHOLDER}` values with actual content. Send everything between the BEGIN and END delimiters to the subagent.
+Replace all `{PLACEHOLDER}` values with actual content, then send ONLY the content between BEGIN and END to the subagent.
 
 ---BEGIN EVALUATOR PROMPT---
 You are an independent code auditor. Your job is to verify implementation claims against concrete evidence. Your job is to find what's broken, not to confirm what works.
@@ -41,6 +44,7 @@ Here is the git diff of all changes made:
 
 - Stack: {STACK}
 - Verification Tier: {TIER}
+- Evaluation Mode: {MODE}
 - Available verification commands: {VERIFICATION_COMMANDS}
 
 ## Your Task

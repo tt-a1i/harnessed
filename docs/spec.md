@@ -26,7 +26,8 @@ harnessed/
 │   │   ├── SKILL.md
 │   │   └── reference.md
 │   ├── contract-writing/
-│   │   └── SKILL.md
+│   │   ├── SKILL.md
+│   │   └── contract-format.md
 │   ├── independent-qa/
 │   │   ├── SKILL.md
 │   │   ├── evaluator-prompt.md
@@ -41,9 +42,9 @@ harnessed/
 
 ### Loading Mechanism
 
-1. `session-start` hook reads `using-harnessed/SKILL.md`
-2. JSON-escapes and injects via `hookSpecificOutput.additionalContext`
-3. Wrapped in priority tags for reliable activation
+1. `session-start` hook triggers on `startup|clear|compact` (matcher in `hooks.json`)
+2. Hook reads `using-harnessed/SKILL.md`, JSON-escapes, and injects via `hookSpecificOutput.additionalContext`
+3. Supports both Claude Code (`CLAUDE_PLUGIN_ROOT`) and Cursor (`CURSOR_PLUGIN_ROOT`) environments
 4. All other skills loaded on-demand via Skill tool
 
 ### Superpowers Detection
@@ -113,7 +114,7 @@ The meta-skill checks for Superpowers presence:
 - Keep contracts short: 3-15 criteria max
 - Contract is written to a file (not just context) so the QA subagent can read it independently
 
-**Iron Law:**
+**HARD-GATE:**
 ```
 NO CODE WITHOUT A CONTRACT FIRST
 ```
@@ -127,8 +128,9 @@ NO CODE WITHOUT A CONTRACT FIRST
 **Architecture:**
 - QA runs as a separate subagent via Agent tool
 - Fresh context — no access to generator's reasoning or assumptions
-- Receives: git diff + contract.md + project context (stack, structure)
+- Receives: git diff (or full file contents if not a git repo) + contract.md + project context (stack, structure)
 - Does NOT receive: generator's planning notes, self-assessment, or conversation history
+- If the project is not a git repository: collect full file contents instead of diff, with a note to the evaluator
 
 **Two-tier evaluation:**
 
@@ -140,11 +142,12 @@ NO CODE WITHOUT A CONTRACT FIRST
 
 **Tier 2 — Execution Verification (auto-detected):**
 Activated when ANY of these are detected:
-- `package.json` with test script
-- `pytest.ini`, `pyproject.toml` with test config
-- `Makefile` with test target
-- Running dev server (port open)
-- Playwright/Cypress config present
+- `package.json` with `"test"` script → can run `npm test`
+- `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` convention → can run `pytest`
+- `Makefile` with `test` target → can run `make test`
+- `go.mod` present → can run `go test ./...`
+- Running dev server on common ports (3000, 5173, 8000, 8080). Detection: `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'`
+- Playwright/Cypress config present → can run e2e tests
 
 Tier 2 adds:
 - Run test suite, report results
@@ -152,12 +155,33 @@ Tier 2 adds:
 - If API: call endpoints, verify responses
 - Report execution results alongside code review
 
+**Pre-Flight Checks (Step 2b — Tier 2 only):**
+Before dispatching the evaluator subagent, run available tool checks at zero LLM cost:
+- Type checker (e.g., `tsc --noEmit`, `mypy`)
+- Linter (e.g., `eslint`, `ruff`)
+- Test suite
+
+If any pre-flight check fails, fix the issues first. Do NOT dispatch the evaluator until pre-flight checks pass.
+
+**Git State Checks (Step 2c):**
+Before gathering context, verify the repository is in a clean state:
+- Check for `.git/MERGE_HEAD` — if present, STOP (active merge conflict; cannot run QA)
+- Use `git diff HEAD` (not plain `git diff`) to capture both staged and unstaged changes
+
 **Evaluator Prompt Design:**
-- System prompt positions evaluator as a "skeptical senior engineer"
-- Explicitly told: "The implementer may have cut corners. Your job is to find what's broken."
+- System prompt positions evaluator as an "independent code auditor"
+- Explicitly told: "Your job is to find what's broken, not to confirm what works"
 - Must cite specific file:line for every finding
 - Must attempt to disprove each PASS (not just confirm)
 - Structured output format (not prose)
+
+**Evaluator Output Verification (Step 4b):**
+After the subagent returns, verify `.harnessed/qa-report.md`:
+- Exists (file is present)
+- Contains the expected `# QA Report` header
+- Has a file modification time more recent than `dispatched_at` in `.harnessed/qa-state.md`
+
+If the report is missing, empty, or malformed: retry the evaluation once. If the second attempt fails, treat as BLOCKED and escalate to the user.
 
 **Grading:**
 - Per-criterion: PASS / FAIL / PARTIAL / MANUAL_REVIEW_NEEDED (with explanation)
@@ -171,6 +195,21 @@ Tier 2 adds:
 - Max 3 iterations
 - If still ITERATE after max: escalate to user with full report
 - If BLOCKED at any point: escalate immediately
+- Iteration count is persisted in `.harnessed/qa-state.md` with format:
+  ```
+  iteration: {N}
+  dispatched_at: {ISO 8601 timestamp}
+  ```
+  This file survives context compaction (the evaluator only writes `qa-report.md`, not `qa-state.md`). After compaction, read this file to recover the iteration count.
+
+**MANUAL_REVIEW_NEEDED:**
+- Excluded from the pass/fail count — does not block SHIP
+- verification-gate lists MANUAL_REVIEW_NEEDED criteria under a "Pending Human Review" section
+
+**Context Budget:**
+- ~80,000 token budget for the evaluator prompt
+- If exceeded: exclude lock files, auto-generated files, and test file changes (note exclusions to the evaluator)
+- If still too large: include only hunks relevant to contract criteria rather than full file diffs
 
 **Anti-Rationalization:**
 - "QA passed last time on similar code" → Each change gets fresh QA
@@ -193,7 +232,7 @@ Tier 2 adds:
 3. If any criterion lacks evidence: task is NOT complete
 4. Present evidence summary to user
 
-**Iron Law:**
+**HARD-GATE:**
 ```
 NO COMPLETION CLAIMS WITHOUT EVIDENCE FOR EVERY CRITERION
 ```
@@ -215,7 +254,8 @@ Skills communicate through files, not shared context:
 | File | Written by | Read by |
 |------|-----------|---------|
 | `contract.md` | contract-writing | independent-qa, verification-gate |
-| `qa-report.md` | independent-qa (evaluator subagent) | generator (for fixes), verification-gate |
+| `qa-report.md` | evaluator subagent (dispatched by independent-qa) | generator (for fixes), verification-gate |
+| `qa-state.md` | independent-qa orchestrator | independent-qa on re-entry after compaction, Step 4b verification |
 | `verification-summary.md` | verification-gate | user (final deliverable) |
 
 Files are written to `.harnessed/` directory in the project root to avoid polluting the workspace.
@@ -230,9 +270,24 @@ Files are written to `.harnessed/` directory in the project root to avoid pollut
 | With Superpowers | Skipped (SP plans) | Active (reads SP spec) | Active (reads SP spec) |
 
 When Superpowers is present:
-- independent-qa reads from `docs/superpowers/specs/` instead of `contract.md`
-- verification-gate checks against Superpowers spec criteria
+- Contract-writing skill is skipped (Superpowers handles planning)
+- independent-qa reads the Superpowers spec from `docs/superpowers/specs/`, synthesizes it into `.harnessed/contract.md` (including a `## Verification Commands` section), and all downstream skills read from that single file
+- verification-gate reads `.harnessed/contract.md` (the normalized contract) in both modes
 - No conflict with Superpowers' own verification-before-completion (Harnessed adds structured evidence on top)
+
+---
+
+## Artifact Lifecycle
+
+When a new task begins, archive stale artifacts to prevent them from misleading the QA evaluator:
+
+1. If `.harnessed/contract.md` exists from a previous task, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-contract.md`
+2. If `.harnessed/qa-report.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-qa-report.md`
+3. If `.harnessed/verification-summary.md` exists, rename to `.harnessed/archive/{YYYYMMDD-HHMMSS}-verification-summary.md`
+
+Create `.harnessed/archive/` if it does not exist.
+
+**New task vs. continuation:** A new task has a distinct goal unrelated to the current contract. A continuation refines or extends the current goal. When ambiguous, ask the user.
 
 ---
 

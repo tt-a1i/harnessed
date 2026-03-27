@@ -23,7 +23,7 @@ Dispatch an isolated evaluator subagent to verify your code. The evaluator opera
 Determine the acceptance criteria source:
 
 - **Standalone mode:** Read `.harnessed/contract.md`
-- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task). Extract discrete, verifiable criteria from the spec. If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Present extracted criteria in the same format as a Harnessed contract for the `{CONTRACT}` placeholder. If the spec contains no identifiable requirements, invoke `harnessed:contract-writing` to create a contract.
+- **Complementary mode (Superpowers):** Read the spec from `docs/superpowers/specs/` (use the most recent spec file relevant to the current task). Extract discrete, verifiable criteria from the spec. If the spec is narrative without explicit criteria, synthesize one criterion per stated requirement. Present extracted criteria in the same format as a Harnessed contract — including a `## Verification Commands` section synthesized from the spec's testing guidance or inferred from the project's test infrastructure. Write the normalized contract to `.harnessed/contract.md` so that the verification-gate reads from the same source. Use this content for the `{CONTRACT}` placeholder. If the spec contains no identifiable requirements, invoke `harnessed:contract-writing` to create a contract.
 
 If no contract/spec exists: STOP. Invoke `harnessed:contract-writing` first. Do NOT run QA without criteria.
 
@@ -36,7 +36,7 @@ Check the project for available verification infrastructure:
 - `pytest.ini`, `pyproject.toml` with `[tool.pytest]`, or `tests/` directory with `test_*.py` → can run `pytest`
 - `Makefile` with `test` target → can run `make test`
 - `go.mod` present → can run `go test ./...`
-- Dev server running (check common ports: 3000, 5173, 8000, 8080). Use `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` to detect running servers.
+- Dev server running (check common ports: 3000, 5173, 8000, 8080). Use `lsof -i -P 2>/dev/null | grep -E ':(3000|5173|8000|8080).*LISTEN'` to detect running servers. On Linux where `lsof` is unavailable, use `ss -tlnp 2>/dev/null | grep -E ':(3000|5173|8000|8080)'` instead.
 - `playwright.config.*` or `cypress.config.*` → can run e2e tests
 
 **If ANY Tier 2 indicator is found:** use Tier 2 (code review + execution)
@@ -54,6 +54,13 @@ Before dispatching the expensive evaluator subagent, run available tool checks a
 
 If any pre-flight check fails, fix the issues first. Do NOT dispatch the evaluator until pre-flight checks pass. This prevents wasting an evaluator round on errors that tools catch for free.
 
+### Step 2c: Git State Checks
+
+Before gathering context, verify the repository is in a clean state for evaluation:
+
+- **Merge conflict active:** Check for `.git/MERGE_HEAD`. If present, STOP — do not dispatch the evaluator. Inform the user: "Cannot run QA during an active merge conflict. Resolve the conflict first."
+- **Diff command:** Use `git diff HEAD` to capture both staged and unstaged changes. Plain `git diff` misses staged changes.
+
 ### Step 3: Gather Context for Evaluator
 
 Collect the following — this is ALL the evaluator will see:
@@ -61,7 +68,7 @@ Collect the following — this is ALL the evaluator will see:
 | Include | Why |
 |---------|-----|
 | The contract/spec content | Criteria to evaluate against |
-| `git diff` of changes (staged + unstaged) | The actual code to review |
+| `git diff HEAD` output (captures both staged and unstaged changes) | The actual code to review |
 | Project stack info (language, framework, test runner) | Context for evaluation |
 | Verification tier (1 or 2) | What the evaluator can do |
 | Available verification commands from contract | How to verify |
@@ -79,7 +86,9 @@ The evaluator must judge the CODE, not your INTENT.
 
 **If the project is not a git repository:** Collect changes by listing all files created or modified during this session. Provide full file contents to the evaluator in place of the diff, with a note: "No git repository. Full file contents provided." The evaluator should review these against the contract criteria.
 
-**Context budget:** If the combined evaluator prompt exceeds ~80,000 tokens, reduce the diff by excluding lock files, auto-generated files, and test file changes (note exclusions to the evaluator). If still too large, include only hunks relevant to contract criteria rather than full file diffs.
+**Context budget:** If the combined evaluator prompt exceeds ~80,000 tokens, reduce the diff by excluding lock files, auto-generated files (e.g., `package-lock.json`, `yarn.lock`, `*.min.js`, compiled output in `dist/` or `build/`, code-generated API clients), and test file changes (note exclusions to the evaluator). If still too large, include only hunks relevant to contract criteria rather than full file diffs.
+
+**Binary files:** `git diff` shows only `Binary files differ` for images, fonts, and other binaries. If a contract criterion involves binary assets, note in the evaluator prompt: "Binary file {path} was changed but content is not diffable." The evaluator should mark such criteria as MANUAL_REVIEW_NEEDED rather than FAIL.
 
 ### Step 4: Dispatch Evaluator Subagent
 
@@ -91,9 +100,10 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
 2. Read `skills/independent-qa/grading-rubric.md` to get the grading rubric content
 3. Replace all placeholders with collected context:
    - `{CONTRACT}` — the full contract/spec content
-   - `{DIFF}` — the git diff
-   - `{STACK}` — project stack description
+   - `{DIFF}` — the `git diff HEAD` output
+   - `{STACK}` — project stack description (language, framework, package manager, test runner; use "unknown" for undetectable components)
    - `{TIER}` — 1 or 2
+   - `{MODE}` — "all-criteria" (default; reserved for future per-criterion evaluation)
    - `{VERIFICATION_COMMANDS}` — commands from contract
    - `{GRADING_RUBRIC}` — content from `grading-rubric.md`
 4. Paste the FULL content of each placeholder. Never summarize, truncate, or paraphrase. The evaluator sees ONLY what you provide — omitted content is invisible content.
@@ -111,7 +121,7 @@ Use the **Agent tool** to spawn the evaluator subagent with the description **"I
 After the evaluator subagent returns, verify that `.harnessed/qa-report.md`:
 - Exists (file is present)
 - Contains the expected `# QA Report` header
-- Was written during this evaluation (not stale from a previous run)
+- Has a file modification time more recent than the `dispatched_at` timestamp in `.harnessed/qa-state.md` (confirms the report is from this dispatch, not stale)
 
 If the report is missing, empty, or malformed: retry the evaluation once with the same inputs. If the second attempt also fails, treat as BLOCKED with reason "QA evaluator failed to produce a valid report" and escalate to the user. Do NOT proceed without a valid QA report.
 
@@ -126,7 +136,7 @@ Read `.harnessed/qa-report.md` after the evaluator completes.
 **If overall grade is ITERATE:**
 - Read the specific failures and fix them
 - After fixing, re-invoke this skill (go back to Step 1)
-- Track iteration count. Maximum 3 iterations.
+- Read the iteration count from `.harnessed/qa-state.md`. Maximum 3 iterations.
 - On iteration 3 with no SHIP: escalate to user with full QA history
 
 **If overall grade is BLOCKED:**
@@ -159,7 +169,12 @@ Round 3: Fix → QA → ITERATE? → ESCALATE to user
 - Each round gets the LATEST diff (including fixes from previous rounds)
 - The evaluator does NOT know about previous rounds — it judges the current state independently
 - Never lower the bar between iterations. If criteria were fair in round 1, they are fair in round 3.
-- Track the iteration count by appending a `## Iteration: {N}` header to `.harnessed/qa-report.md` before each QA dispatch. This persists the count across context compaction.
+- **Iteration state persistence:** Before each evaluator dispatch, write the current iteration count and dispatch timestamp to `.harnessed/qa-state.md`:
+  ```
+  iteration: {N}
+  dispatched_at: {ISO 8601 timestamp}
+  ```
+  This file is NOT touched by the evaluator (which only writes `qa-report.md`), so it survives across QA rounds and context compaction. After compaction, read this file to recover the iteration count.
 
 ## Anti-Rationalization
 

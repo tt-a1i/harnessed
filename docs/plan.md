@@ -50,14 +50,14 @@ Generate testable acceptance criteria.
 - When to activate (standalone mode only, skip when Superpowers present)
 - Contract format template (task, criteria, verification commands, out of scope)
 - Rules for good criteria (verifiable, observable, no subjective)
-- Iron Law: NO CODE WITHOUT A CONTRACT FIRST
+- HARD-GATE: NO CODE WITHOUT A CONTRACT FIRST
 - Anti-rationalization table
 - Output location: `.harnessed/contract.md`
 
 **Acceptance:**
 - [ ] Contract format is clear and machine-parseable
 - [ ] Each criterion rule is actionable
-- [ ] Iron law and anti-rationalization are present
+- [ ] HARD-GATE and anti-rationalization are present
 - [ ] Superpowers bypass condition is documented
 
 ---
@@ -138,14 +138,14 @@ Final checkpoint before completion.
 - When to activate (before ANY completion signal)
 - Evidence format: file:line citations, test names, command outputs
 - Contract/spec source resolution (Harnessed contract vs Superpowers spec)
-- Iron Law: NO COMPLETION CLAIMS WITHOUT EVIDENCE
+- HARD-GATE: NO COMPLETION CLAIMS WITHOUT EVIDENCE
 - Anti-rationalization table
 - Output: `.harnessed/verification-summary.md`
 
 **Acceptance:**
 - [ ] Evidence format is concrete and hard to fabricate
 - [ ] Dual-source resolution (contract.md vs superpowers spec) works
-- [ ] Iron law and anti-rationalization present
+- [ ] HARD-GATE and anti-rationalization present
 - [ ] Output summarizes evidence per criterion
 
 ---

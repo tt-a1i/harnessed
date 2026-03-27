@@ -46,7 +46,8 @@ When a new task begins, archive stale artifacts to prevent them from misleading 
 
 1. If `.harnessed/contract.md` exists from a previous task, rename it to `.harnessed/archive/{timestamp}-contract.md`
 2. If `.harnessed/qa-report.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-report.md`
-3. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
+3. If `.harnessed/qa-state.md` exists, rename it to `.harnessed/archive/{timestamp}-qa-state.md`
+4. If `.harnessed/verification-summary.md` exists, rename it to `.harnessed/archive/{timestamp}-verification-summary.md`
 
 Use the format `YYYYMMDD-HHMMSS` for `{timestamp}`. Create `.harnessed/archive/` if it does not exist.
 

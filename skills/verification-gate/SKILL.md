@@ -27,7 +27,7 @@ You may NOT use the words "done", "complete", "finished", "implemented", or any 
 ### Step 1: Locate Criteria Source
 
 - **Standalone mode:** Read `.harnessed/contract.md`
-- **Complementary mode (Superpowers):** Read the Superpowers spec from `docs/superpowers/specs/`
+- **Complementary mode (Superpowers):** Read `.harnessed/contract.md` (the independent-qa skill writes the normalized contract there in both modes). If it does not exist, read the Superpowers spec from `docs/superpowers/specs/` and extract criteria.
 - **Micro task (no contract):** Infer criteria from the user's original request. List them explicitly before verifying.
 
 ### Step 2: Collect Evidence Per Criterion
@@ -51,12 +51,14 @@ For EACH criterion, provide ONE of the following evidence types:
 
 After collecting evidence for all criteria, verify:
 
-- [ ] Every criterion has at least one evidence item
+- [ ] Every criterion has at least one evidence item (except MANUAL_REVIEW_NEEDED — see below)
 - [ ] No criterion is marked with "will be done later" or "TODO"
 - [ ] QA report (if exists) shows SHIP status
 - [ ] No unresolved ITERATE or BLOCKED findings remain
 
-If ANY gap exists: the task is NOT complete. Fix the gap before proceeding.
+**MANUAL_REVIEW_NEEDED criteria:** If the QA report marked a criterion as MANUAL_REVIEW_NEEDED, you cannot produce automated evidence for it. Do NOT block completion. Instead, list these criteria in the verification summary under a `## Pending Human Review` section with the evaluator's notes. The user will verify these manually.
+
+If ANY other gap exists: the task is NOT complete. Fix the gap before proceeding.
 
 ### Step 4: Write Verification Summary
 
@@ -77,6 +79,9 @@ Write to `.harnessed/verification-summary.md`:
 - **Verified:** Yes
 
 {Repeat for each criterion}
+
+## Pending Human Review
+{List criteria marked MANUAL_REVIEW_NEEDED by QA, with the evaluator's notes. Omit this section if none.}
 
 ## QA History
 - Rounds: {number of QA iterations}

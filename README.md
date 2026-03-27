@@ -8,7 +8,7 @@ AI coding agents evaluate their own work — and get it wrong. Research shows se
 
 ## What It Does
 
-Harnessed adds an independent quality verification loop to your AI coding workflow. Instead of letting the coding agent evaluate its own work, Harnessed dispatches a separate evaluator with no knowledge of the generator's reasoning.
+Harnessed adds an independent QA loop to your AI coding workflow:
 
 ```
 Task → Contract → Code → Independent QA → Fix Loop → Verification Gate → Done
@@ -26,19 +26,19 @@ Task → Contract → Code → Independent QA → Fix Loop → Verification Gate
 # Clone the repository
 git clone https://github.com/tt-a1i/harnessed.git
 
-# Install as a project plugin
-cp -r harnessed/ your-project/
+# Option A: Install as a project plugin (project-local)
+# Copy into your project root — Claude Code discovers plugins via .claude-plugin/
+cp -r harnessed/ your-project/harnessed/
 
-# Or install globally
+# Option B: Install globally for all projects
 cp -r harnessed/ ~/.claude/plugins/harnessed/
-
-# Ensure the hook is executable
-chmod +x harnessed/hooks/session-start
 ```
 
-To verify: start a new Claude Code session and give a coding task. You should see Harnessed generate a contract in `.harnessed/contract.md` before coding begins.
+After installation:
+1. Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there
+2. Verify: run `bash harnessed/hooks/session-start` — you should see JSON output with the meta-skill content
 
-**Important:** Add `.harnessed/` to your project's `.gitignore` — Harnessed writes QA artifacts there.
+> If you downloaded a zip instead of cloning, run `chmod +x harnessed/hooks/session-start`.
 
 ### With Superpowers
 
@@ -118,14 +118,25 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 
 ```
 .harnessed/
-├── contract.md              # Acceptance criteria
+├── contract.md              # Acceptance criteria (written in both modes)
 ├── qa-report.md             # QA evaluation report
-└── verification-summary.md  # Completion evidence
+├── qa-state.md              # Iteration count and dispatch timestamp
+├── verification-summary.md  # Completion evidence
+└── archive/                 # Archived artifacts from previous tasks
 ```
+
+**Note:** Concurrent Claude Code sessions in the same project directory are not supported. Each session writes to the same `.harnessed/` directory without locking — artifacts from one session may overwrite another's.
 
 ## Cost
 
 Each QA round spawns one evaluator subagent. A typical task uses 1-2 QA rounds. Expect roughly 1.5x the token usage of coding without Harnessed. The tradeoff: catching bugs before the user reports them vs. catching them after.
+
+## Customization
+
+- **Skip QA for a task:** Tell Claude "skip QA" or "treat this as a micro task"
+- **Skip the contract:** Tell Claude "skip the contract, just do QA"
+- **Disable entirely:** Tell Claude "don't run Harnessed" — it will comply but note that verification was skipped
+- Harnessed always respects explicit user instructions. The automated gates prevent the *agent* from skipping verification on its own, not the user from choosing to skip it.
 
 ## Design Principles
 
@@ -133,6 +144,23 @@ Each QA round spawns one evaluator subagent. A typical task uses 1-2 QA rounds. 
 2. **Independence > Thoroughness** — A quick independent check catches more than a thorough self-review
 3. **Evidence > Assertion** — "It works because file:42 shows X" beats "It works because I wrote it correctly"
 4. **Skepticism > Trust** — Default stance is "prove it works" not "assume it works"
+
+## Troubleshooting
+
+**Harnessed not loading (no contract generated on first task):**
+- Run the hook manually: `bash harnessed/hooks/session-start` — it should output JSON containing the meta-skill
+- If you get an error, check that `python3` is installed (used for JSON escaping)
+- If you downloaded a zip, ensure the hook is executable: `chmod +x harnessed/hooks/session-start`
+
+**QA evaluator fails to produce a report:**
+- This usually means the evaluator prompt was too large. Try a smaller diff or fewer criteria.
+- After one retry, Harnessed marks the task as BLOCKED and escalates to you.
+
+**Artifacts appearing in git status:**
+- Add `.harnessed/` to your project's `.gitignore`
+
+**Concurrent sessions:**
+- Running multiple Claude Code sessions on the same project is not supported — sessions share `.harnessed/` without locking
 
 ## License
 
