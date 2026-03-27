@@ -2,7 +2,7 @@
 
 [中文版](README.zh-CN.md)
 
-Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator confirms it works.
+Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator independently reviews it.
 
 ## Why
 

@@ -9,7 +9,7 @@ description: Use at the start of every session and before completing any coding 
 This skill is for the main session agent only. Subagents (including QA evaluators) should not load or follow these instructions.
 </SUBAGENT-STOP>
 
-Harnessed ensures that code you write is independently verified before being declared complete. Your work is not "done" until an isolated evaluator — separate from you — confirms it works.
+Harnessed ensures that code you write is independently reviewed before being declared complete. Your work is not "done" until an isolated evaluator — separate from you — has reviewed it. For criteria that require human judgment, the evaluator flags them for manual review rather than guessing.
 
 ## Detect Operating Mode
 
