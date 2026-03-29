@@ -48,3 +48,10 @@ When synthesizing a contract from Superpowers specs, the output must follow this
 ## Failure Patterns
 
 Before writing or synthesizing a contract, check `.harnessed/failure-patterns.md` (if it exists) for recurring failure categories relevant to the task. Incorporate any applicable patterns as Regression or Edge Case criteria to avoid repeat failures.
+
+## Repo Policies
+
+If `.harnessed/policies/` exists, select only the policy summaries relevant to the current change scope and convert their rules into acceptance criteria or regression constraints.
+
+- Do not dump full policy text into the contract unless the user asks for that explicitly.
+- If no policy file matches, keep the existing contract format and continue without policy-derived criteria.

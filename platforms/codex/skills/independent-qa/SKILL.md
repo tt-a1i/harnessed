@@ -51,6 +51,8 @@ Before gathering context:
 - use `git diff HEAD` to capture staged + unstaged changes
 - include untracked files by appending their contents to the diff context
 
+Extract the changed file paths from this diff. Use them to drive any scope-based policy selection.
+
 ### Step 2d: Risk Classification and Review Mode
 
 Classify the task as **standard** or **high-risk**.
@@ -81,6 +83,19 @@ Set `Calibration Status` to:
 
 For high-risk tasks, `stale` or `missing` calibration means the best possible fully automated outcome is **SHIP_WITH_HUMAN_REVIEW**, not plain SHIP.
 
+### Step 2f: Select Relevant Policy Summaries
+
+If `.harnessed/policies/` exists, select only the policy files relevant to the current diff scope.
+
+Use simple path and keyword matching rather than semantic inference:
+
+- auth-related paths or keywords -> `auth.md`
+- service/API changes -> `response.md` + `db.md` + `validation.md`
+- test changes -> `testing.md`
+- security-sensitive paths or keywords -> `security.md`
+
+Read only the matched files. Keep the token budget bounded: inject at most the small set of matching policy summaries, not the full policy directory. If no policy matches, skip policy injection entirely and keep the existing behavior.
+
 ### Step 3: Gather Context for Reviewers
 
 Collect the following — this is ALL the reviewers see:
@@ -95,6 +110,7 @@ Collect the following — this is ALL the reviewers see:
 | Risk level | Whether corroboration is required |
 | Review mode | Which reviewer path is active |
 | Calibration status | Whether clean automation can be trusted fully |
+| `{RELEVANT_POLICIES}` | Repo-specific constraints selected from `.harnessed/policies/` |
 
 **DO NOT include:**
 - your reasoning or thought process
@@ -121,6 +137,7 @@ When using `evaluator-prompt.md`, replace:
 - `{RISK_LEVEL}`
 - `{CALIBRATION_STATUS}`
 - `{VERIFICATION_COMMANDS}`
+- `{RELEVANT_POLICIES}`
 - `{GRADING_RUBRIC}`
 
 ### Step 4b: Static Analysis for Security-Sensitive Tasks
@@ -212,6 +229,7 @@ After a SHIP or SHIP_WITH_HUMAN_REVIEW result, append:
 | "The evaluator is wrong about this finding" | Maybe, but your bias is exactly why the reviewer exists. | Gather stronger evidence or use the tie-break path. |
 | "High-risk mode is too expensive" | High-risk tasks are where unchecked bias is most costly. | Use corroboration and explicit human review. |
 | "No tool found anything, so security is proven" | Tool silence is not proof of safety. | Record uncertainty and require human review where appropriate. |
+| "The reviewer can infer repo policy from the codebase" | That makes coherence checking depend on model guesswork. | Inject only the relevant policy summaries selected from the diff scope. |
 
 <HARD-GATE>
 INDEPENDENT QA IS MANDATORY FOR ALL STANDARD AND LARGE TASKS.

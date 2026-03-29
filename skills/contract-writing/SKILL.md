@@ -23,6 +23,24 @@ If you have already started coding before writing a contract, STOP. Write the co
 
 Write the contract to `.harnessed/contract.md` using the format defined in `skills/contract-writing/contract-format.md`. The format includes: `# Contract: {title}`, `## Task`, `## Acceptance Criteria` (with Functional/Edge Cases/Regression subsections), `## Verification Commands`, and `## Out of Scope`.
 
+## Repo Policy Packs
+
+If `.harnessed/policies/` exists, treat it as a repo-specific policy store.
+
+- split files by domain: `auth.md`, `response.md`, `db.md`, `validation.md`, `security.md`, `testing.md`
+- keep each policy file under 50 lines
+- policy files are summaries, not full code dumps
+- users may write them manually or generate them from the repo
+
+Select only the policies relevant to the current change scope. Use simple path and keyword matching:
+
+- auth-related changes -> `auth.md`
+- service/API changes -> `response.md` + `db.md` + `validation.md`
+- test changes -> `testing.md`
+- security-sensitive paths or keywords -> `security.md`
+
+If no policy file matches, continue with the existing behavior. Do NOT load the whole policy store just because it exists.
+
 ## Rules for Good Criteria
 
 ### Each criterion MUST be:
@@ -68,7 +86,8 @@ If the project has no test infrastructure, the contract should note this under a
 1. **Read the user's request** carefully. Identify explicit and implicit requirements.
 2. **Examine the codebase** — understand existing patterns, test infrastructure, and constraints.
 2b. **Check failure patterns** — if `.harnessed/failure-patterns.md` exists, read it. Only note patterns with Count ≥ 2 that are relevant to the current task's domain (e.g., "missing input validation" is relevant for API work but not for CSS refactoring). Ignore patterns unrelated to the task — the goal is targeted prevention, not a checklist of every past mistake.
-3. **Draft the contract** — write criteria covering: functional requirements, edge cases, regression safety, and relevant failure patterns from step 2b.
+2c. **Select relevant policies** — if `.harnessed/policies/` exists, determine the likely change scope from the task request and any already-known target files. Load only the relevant policy summaries. Distill their rules into contract criteria or regression constraints; do not paste policy text into the contract verbatim unless the user asked for that.
+3. **Draft the contract** — write criteria covering: functional requirements, edge cases, regression safety, relevant failure patterns from step 2b, and any applicable repo-policy constraints from step 2c.
 4. **Add verification commands** — map each criterion to how it can be checked.
 5. **Define out-of-scope** — explicitly exclude things the user did NOT ask for.
 6. **Write to `.harnessed/contract.md`**
@@ -94,6 +113,8 @@ Never run QA against a stale contract.
 | "I'll figure out the criteria as I code" | Post-hoc criteria are biased toward what you built, not what should be built. | Write criteria BEFORE coding. Adjust only if requirements change. |
 | "The user just wants it done fast" | A broken feature delivered fast wastes more time than a working feature delivered with a 2-minute contract. | Write the contract. Speed without correctness is not speed. |
 | "This is a refactor, there are no new requirements" | Refactors have the strictest contract: behavior must be IDENTICAL. List the behaviors that must not change. | Write regression criteria for every observable behavior. |
+| "The evaluator will infer repo conventions from the diff" | Reviewers guess inconsistently when repo policy is left implicit. | Load only the relevant policy summaries and turn them into criteria. |
+| "If the feature works, the repo rules can stay implicit" | Coherence failures create churn even when the feature appears correct. | Capture repo constraints in the contract whenever matching policies exist. |
 
 ## Example
 
