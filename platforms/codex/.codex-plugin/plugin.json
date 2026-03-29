@@ -1,6 +1,6 @@
 {
   "name": "harnessed",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Independent quality verification for AI coding agents.",
   "skills": "./skills/",
   "hooks": "./hooks.json"

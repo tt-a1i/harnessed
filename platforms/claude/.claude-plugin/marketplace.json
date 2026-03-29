@@ -11,7 +11,7 @@
     {
       "name": "harnessed",
       "description": "Independent quality verification for AI coding agents. Code isn't done until an isolated evaluator independently reviews it.",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "source": "./",
       "category": "development",
       "homepage": "https://github.com/tt-a1i/harnessed",
