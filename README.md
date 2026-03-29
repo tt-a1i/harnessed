@@ -145,7 +145,10 @@ All Harnessed artifacts are written to `.harnessed/` in your project root:
 ├── .lock                    # Advisory session lock (PID + timestamp)
 ├── contract.md              # Acceptance criteria (written in both modes)
 ├── failure-patterns.md      # Recurring failure categories (persistent across tasks)
-├── qa-report.md             # QA evaluation report
+├── qa-report.md             # Primary QA evaluation report
+├── qa-report-secondary.md   # Corroborating reviewer report (high-risk tasks)
+├── qa-report-security.md    # Security reviewer report (security-sensitive tasks)
+├── qa-report-tiebreak.md    # Tie-break reviewer report (disagreement resolution)
 ├── qa-state.md              # Iteration count and dispatch timestamp
 ├── verification-summary.md  # Completion evidence
 └── archive/                 # Archived artifacts from previous tasks

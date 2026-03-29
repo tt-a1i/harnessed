@@ -147,7 +147,10 @@ Harnessed 自动检测 Superpowers。两者同时安装时：
 ├── .lock                    # 咨询性会话锁（PID + 时间戳）
 ├── contract.md              # 验收标准（两种模式均写入）
 ├── failure-patterns.md      # 跨任务复现的失败模式
-├── qa-report.md             # QA 评估报告
+├── qa-report.md             # 主 QA 评估报告
+├── qa-report-secondary.md   # 交叉审查报告（高风险任务）
+├── qa-report-security.md    # 安全审查报告（安全敏感任务）
+├── qa-report-tiebreak.md    # Tie-break 审查报告（分歧解决）
 ├── qa-state.md              # 迭代计数与派遣时间戳
 ├── verification-summary.md  # 完成证据
 └── archive/                 # 前次任务的归档产物
