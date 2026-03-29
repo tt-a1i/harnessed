@@ -1,17 +1,30 @@
-# Harnessed: Why Independent Verification Matters
+# Harnessed: Turn AI Coding Into a Low-Variance Engineering System
 
 ## The Problem
 
-AI coding agents evaluate their own work — and systematically get it wrong.
+AI coding agents are no longer failing only because they lack raw capability. Strong models can often produce useful code on the first try. The persistent problem is that AI coding remains high-variance: implicit requirements stay implicit, repository conventions drift across files, and agents declare success before there is enough evidence that the delivered code is actually complete.
 
-This is not a speculation. Research demonstrates that LLMs exhibit **self-preference bias**: when asked to judge outputs, they favor responses that resemble their own style, regardless of actual quality [1][2]. In coding contexts, this means an agent that writes code and then reviews its own code is structurally biased toward concluding that the code is correct.
+This is not just a prompt-quality problem. Research demonstrates that LLMs exhibit **self-preference bias**: when asked to judge outputs, they favor responses that resemble their own style, regardless of actual quality [1][2]. In coding contexts, this means an agent that writes code and then reviews its own code is structurally biased toward concluding that the code is correct. But self-evaluation bias is only one source of the larger issue: delivery quality is unstable because constraints are not explicit enough, review is not proportionate to risk, and completion claims are often based on assertion instead of evidence.
 
 The consequences are concrete:
 - Agents declare tasks "done" when requirements are incomplete
-- Bugs pass self-review because the reviewer shares the same blind spots as the author
-- Security issues go undetected because the model lacks adversarial perspective on its own output
+- Cross-file patterns drift away from the codebase's actual conventions
+- Silent omissions survive until human review or production use
+- Rework increases because the process detects gaps too late
 
-Harnessed exists to break this cycle.
+Harnessed exists to reduce that variance. It turns implicit requirements into explicit contracts, forces evidence-backed verification, and routes work through stronger review only when the risk justifies it. The goal is not to claim that AI coding suddenly becomes much smarter. The goal is to make AI coding more governable, more auditable, and less likely to fail silently.
+
+---
+
+## Practical Signal From Early Benchmarks
+
+Our current benchmark data shows a real but bounded quality delta over a strong Sonnet baseline:
+
+- End-to-end task quality improved from **31/37 (83.8%)** to **33/37 (89.2%)**
+- Bug-injection detection improved from **6.5/10 average** to **7.5/10 average**
+- Codebase-coherence review improved from **8/10** to **9/10**
+
+These numbers should not be read as a dramatic intelligence jump. They should be read as evidence that Harnessed reduces missed constraints, catches more implicit validation and error-handling issues, and preserves repository coherence more reliably. The product value is lower variance in delivery quality, not a claim that the underlying model has become universally better at every coding task.
 
 ---
 
@@ -137,19 +150,20 @@ Harnessed exists to break this cycle.
 ## What Harnessed Is and Is Not
 
 ### Harnessed IS:
-- A system that lowers self-evaluation bias in AI coding agents
-- A structured QA loop with independent evaluation, explicit contracts, and evidence-based gates
-- A risk-aware framework that applies proportionate scrutiny
-- Honest about its own limitations and uncertainties
+- A low-variance engineering system for AI coding work
+- A structured execution and QA loop with explicit contracts, independent evaluation, and evidence-based gates
+- A way to reduce missed requirements, convention drift, and late-stage rework
+- A risk-aware framework that applies proportionate scrutiny and reports uncertainty honestly
 
 ### Harnessed is NOT:
+- An intelligence booster that makes every model dramatically smarter
 - A guarantee of code correctness
 - A replacement for human security review on critical systems
 - A system with zero evaluator bias
 - A complete defense against prompt injection
 - A substitute for comprehensive test suites
 
-The value of Harnessed is not that it makes AI coding perfect. The value is that it makes AI coding **accountable** — with explicit criteria, independent review, concrete evidence, and honest uncertainty reporting.
+The value of Harnessed is not that it makes AI coding perfect, or even uniformly better on every benchmark. The value is that it turns AI coding into a more **accountable and governable engineering system** — with explicit criteria, independent review, concrete evidence, honest uncertainty reporting, and clearer boundaries for when human judgment is still required.
 
 ---
 

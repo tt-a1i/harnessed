@@ -2,6 +2,46 @@
 
 Based on architecture-level threat modeling, design pattern comparison, and extensibility analysis.
 
+## Benchmark-Driven Priorities (March 2026)
+
+Harnessed is already showing a real quality delta over baseline: it catches more explicit invariants, improves codebase coherence, and reduces silent convention drift through isolated QA. The next gains are unlikely to come from "more review" in the abstract. They will come from stronger requirement coverage before coding, more repository-specific guardrails during review, more adversarial verification of user-visible flows, and better metrics that describe engineering risk rather than average score.
+
+### 1. Contract Extraction and Requirement Coverage
+
+Goal: stop silent feature omissions before implementation begins.
+
+- Add an independent contract-review subagent that sees only the original request and the drafted contract.
+- Require a requirement-to-criterion coverage map before code generation starts.
+- Require verification commands or executable scenarios for every P0 and P1 feature criterion.
+- Persist coverage artifacts in `.harnessed/` so QA and verification-gate can prove that no original requirement was dropped.
+
+### 2. Repository Policy Packs
+
+Goal: turn current codebase-coherence wins into a repeatable product advantage.
+
+- Define policy packs for auth, validation, responses, exception handling, and approved utilities.
+- Auto-select relevant policy packs based on touched files or detected frameworks.
+- Feed evaluators reference files or manifests instead of relying on ad hoc convention inference.
+- Report policy violations separately from feature misses so coherence improvements remain visible.
+
+### 3. Adversarial Evaluation and Flow Verification
+
+Goal: expose the failure modes that average scoring currently hides.
+
+- Add adversarial benchmark scenarios with ambiguous requirements, missing constraints, and wrong prior assumptions.
+- Add executable user-flow and admin-flow checks for multi-step stateful tasks.
+- Promote these scenarios into Tier 1.5 or Tier 2 verification whenever the repo supports tests or HTTP interaction.
+- Separate code-review PASS from flow-completeness PASS in QA output and benchmark reporting.
+
+### 4. Metrics and Positioning Instrumentation
+
+Goal: measure and communicate engineering risk reduction, not vague model uplift.
+
+- Track worst-case score and bottom-quartile score in addition to averages.
+- Track rework count, first-pass completion rate, and implicit-requirement hit rate.
+- Track exclusive wins versus baseline mode to show where Harnessed adds unique value.
+- Track flow-completeness recall as a headline metric for end-to-end tasks.
+
 ---
 
 ## High Priority
